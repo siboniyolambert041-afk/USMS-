@@ -3,2526 +3,1370 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Unified School Management System (USMS) - Integrated Platform (RWF)</title>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <meta name="description" content="USMS Rwanda 2025 - Multi-School Management System">
+    <meta name="theme-color" content="#0B4D8D">
+    <title>USMS Rwanda 2025 - Multi-School System</title>
+    <!-- Fonts & Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+          integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxVe5uzm5u3z8=="
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/big.js/6.2.1/big.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
+    <!-- A-Frame for VR -->
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <!-- jsPDF and autoTable for PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <!-- SheetJS for Excel export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        /* 🎨 USMS BASE STYLES */
-        body { font-family:"Roboto", "Segoe UI", Arial, sans-serif; background:#f2f5f9; margin:0; padding:0; color: #333; }
-        header { background: linear-gradient(90deg,#0074D9,#005fa3); color:white; padding:15px 20px; display:flex; justify-content:space-between; align-items:center; font-size:18px; box-shadow:0 2px 6px rgba(0,0,0,0.15); }
-        #navMenu { background:white; padding:10px 20px; display:flex; flex-wrap:wrap; gap:10px; box-shadow:0 2px 4px rgba(0,0,0,0.05); }
-        #navMenu button { border:none; background:#0074D9; color:white; cursor:pointer; border-radius:6px; padding:8px 16px; font-size:15px; transition:0.2s; }
-        #navMenu button.active { background:#005fa3; }
-        #navMenu button:hover { background:#005fa3; }
-        .container { padding:20px; max-width: 1200px; margin: 0 auto; }
-        .hidden { display:none; }
-        .tab { display:none; }
-        .tab.active { display:block; }
-        h1 { margin-bottom:10px; font-weight:300; color:#2c3e50; text-align:center; }
-        h3, h4 { margin-top:0; color:#005fa3; }
-        input, select, textarea { padding:8px; margin:5px 0; width:100%; max-width:320px; border-radius:6px; border:1px solid #ccc; font-size:14px; box-sizing:border-box; }
-        button { margin-top:8px; padding:8px 16px; border-radius:6px; border:none; cursor:pointer; transition:0.2s; }
-        button:hover { opacity:0.9; }
-        table { width:100%; border-collapse:collapse; margin-top:15px; background:white; border-radius:8px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,0.05); }
-        th { background:#0074D9; color:white; padding:10px; text-align:left; }
-        td { padding:8px 10px; border-bottom:1px solid #f0f0f0; }
-        tr:nth-child(even){ background:#f9fbfd; }
-        #loginScreen { max-width:400px; margin:60px auto; background:white; padding:25px; border-radius:10px; box-shadow:0 4px 12px rgba(0,0,0,0.1); }
-        #loginScreen h2 { color:#0074D9; text-align:center; }
-        
-        /* NEW STYLE: Make the login button blue */
-        #loginScreen button {
-            background: #0074D9; 
-            color: white; 
-            padding: 10px 20px;
-            font-size: 16px;
-            width: 100%; /* Make it full width for better form presentation */
+        :root {
+            --primary: #0B4D8D;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --light: #f8f9fa;
+            --text-color: #333;
+            --border-color: #ddd;
+            --background: #f0f4f8;
+            --paid-bg: #d4edda;
+            --paid-text: #155724;
+            --partial-bg: #fff3cd;
+            --partial-text: #856404;
+            --pending-bg: #f8d7da;
+            --pending-text: #721c24;
         }
-        /* END NEW STYLE */
-
-        .flex-row { display:flex; gap:10px; flex-wrap:wrap; }
-        .dashboard-card { 
-            background:white; 
-            padding:15px; 
-            border-radius:8px; 
-            box-shadow:0 2px 6px rgba(0,0,0,0.05); 
-            margin-bottom:15px; 
-            text-align:center; 
-            flex:1; 
-            min-width: 200px; 
-            display: flex; 
-            flex-direction: column; 
-            justify-content: space-between;
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: var(--background);
+            color: var(--text-color);
+            line-height: 1.6;
         }
-        .dashboard-card h5 { margin-top: 0; color: #555; }
-        .delete-btn { background:#dc3545; color:white; border:none; border-radius:5px; padding:3px 6px; cursor:pointer; }
-        .edit-btn { background:#28a745; color:white; border:none; border-radius:5px; padding:3px 6px; cursor:pointer; }
-        .action-btn { background:#5bc0de; color:white; margin-right:5px; padding:8px; }
-        .import-btn { background:#f0ad4e; }
-        .export-btn { background:#337ab7; }
-
-        /* 🕰️ TIMETABLE MODULE STYLES */
-        .timetable-rule { 
-            background: #fff; 
-            padding: 15px; 
-            border-radius: 8px; 
-            margin-bottom: 10px; 
-            box-shadow: 0 1px 4px rgba(0,0,0,0.05); 
-        }
-        .rule-form {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            align-items: end;
-        }
-        .rule-form button {
-            margin-top: 0;
-            padding: 10px 15px;
-            background: #28a745;
-        }
-        .rule-list { 
-            margin-top: 15px; 
-            list-style: none; 
-            padding: 0;
-            max-height: 200px;
-            overflow-y: auto;
-            border: 1px solid #eee;
-            border-radius: 6px;
-        }
-        .rule-list li {
-            padding: 8px 10px;
-            border-bottom: 1px dashed #eee;
+        header {
+            background: linear-gradient(90deg, var(--primary), #003087);
+            color: white;
+            padding: 15px 25px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            flex-wrap: wrap;
+            gap: 10px;
         }
-        .rule-list li:last-child { border-bottom: none; }
-        .timetable-grid-container { 
-            overflow-x: auto; 
-            background: white; 
-            padding: 15px; 
+        #schoolInfo div { font-size: 18px; font-weight: 700; }
+        #schoolCode { font-size: 14px; opacity: 0.9; }
+        #headTeacher { font-size: 14px; margin-top: 4px; }
+        #schoolLocation { font-size: 14px; }
+        #schoolSelector, #yearSelector, #termSelector {
+            padding: 8px 12px;
             border-radius: 8px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-        }
-        .timetable-grid-container table {
-            min-width: 1000px; 
-            table-layout: fixed;
-            font-size: 13px;
-        }
-        .timetable-grid-container th, .timetable-grid-container td {
-             padding: 5px; 
-             text-align: center;
-        }
-        .timetable-grid-container td {
-            height: 60px;
+            border: none;
+            background: white;
+            color: var(--primary);
             font-weight: 500;
         }
-
-        /* 💰 FINANCE MODULE STYLES (Retained) */
-        #financeTab h2 { color:#2c3e50; text-align:center; }
-        #financeTab form { display:flex; flex-wrap:wrap; gap:15px; margin-bottom:30px; justify-content:center; align-items:center }
-        #financeTab input, #financeTab select, #financeTab button { padding:12px 16px; border:2px solid #e0e0e0; border-radius:8px; font-size:14px; transition:all .3s ease; max-width: none; }
-        #financeTab button[type="submit"] { background:linear-gradient(135deg,#667eea 0%,#764ba2 100%); color:white; border:none; font-weight:500; }
-        #financeTab button:not([type="submit"]):not(.delete-btn) { background:#3498db; color:white; border:none; }
-        #financeDashboard { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:20px;}
-        .finance-card { background:linear-gradient(135deg,#f8f9fa 0%,#e9ecef 100%); padding:20px; border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,.05); }
-        #balance { font-size:32px; font-weight:700; color:#27ae60; text-align:center; margin:10px 0 }
-        #paymentForm, #sdmsPaymentForm { border:2px solid #e0e0e0; padding:20px; margin:20px 0; border-radius:12px; background:#f8f9fa }
-        .success-msg{color:#27ae60;background:linear-gradient(135deg,#d5f4e6 0%,#c8e6c9 100%);padding:15px;border-radius:8px;margin:10px 0;border-left:4px solid #27ae60;font-weight:500}
-        .error-msg{color:#e74c3c;background:linear-gradient(135deg,#fadbd8 0%,#f8d7da 100%);padding:15px;border-radius:8px;margin:10px 0;border-left:4px solid #e74c3c;font-weight:500}
-        .finance-card ul li{padding:8px 0;border-bottom:1px solid #e0e0e0; list-style:none; padding-left:0;}
-        #financeTab table th { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-        .budget-alert-card { background: #fff8e1; border-left: 5px solid #ffc107; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
-        .budget-alert-card.overspent { background: #f8d7da; border-left: 5px solid #dc3545; }
-        .budget-alert-card h4 { color: #721c24; display: flex; align-items: center; gap: 10px; }
-        .budget-performance-list { list-style: none; padding: 0; }
-        .budget-performance-list li { padding: 8px 0; border-bottom: 1px dashed #eee; display: flex; justify-content: space-between; font-size: 14px; }
-        .budget-performance-list .status-over { color: #dc3545; font-weight: bold; }
-        .budget-performance-list .status-under { color: #28a745; }
-        .filter-controls { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 15px; padding: 10px; background: white; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
-        .filter-controls input, .filter-controls select { flex: 1; min-width: 150px; max-width: 100%; }
-
-        /* 📝 LESSON PLAN GENERATOR STYLES (Retained) */
-        #lessonPlanTab input, #lessonPlanTab select, #lessonPlanTab textarea { max-width: none; }
-        .section { margin-bottom: 24px; padding: 16px; border: 1px solid #e1e5e9; border-radius: 8px; background: #fafbfc; }
-        .section-title { font-weight: 600; margin-bottom: 12px; color: #2c3e50; border-bottom: 2px solid #4a90e2; padding-bottom: 4px; }
-        .form-group label { display: block; font-weight: 500; margin-bottom: 4px; color: #555; }
-        .checkbox-group { display: flex; align-items: flex-start; gap: 8px; }
-        .submit-btn { background: #4a90e2; color: white; padding: 12px 24px; border-radius: 6px; font-size: 16px; width: 100%; margin-top: 16px; }
-        .output { margin-top: 24px; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); display: none; }
-        .output h2 { border-bottom: 2px solid #4a90e2; padding-bottom: 8px; }
-        .lesson-table { font-size: 12px; }
-        .lesson-table th, .lesson-table td { border: 1px solid #ddd; padding: 8px; vertical-align: top; }
-        .lesson-table th { background-color: #f2f2f2; font-weight: bold; }
-        .lesson-table textarea { width: 100%; height: 60px; border: none; resize: vertical; font-family: inherit; font-size: inherit; background: transparent; }
-        .download-btn { background: #28a745; color: white; padding: 8px 16px; border-radius: 4px; margin-right: 10px; margin-top: 10px; }
-        
-        /* New style to ensure tables break correctly for PDF/DOCX (for print media) */
-        @media print {
-            .lesson-table { 
-                table-layout: fixed; 
-                width: 100% !important; 
-                page-break-inside: auto; 
-            }
-            .lesson-table tr { 
-                page-break-inside: avoid; 
-                page-break-after: auto; 
-            }
-            .lesson-table thead { 
-                display: table-header-group; 
-            }
+        #yearSelector, #termSelector { margin-left: 10px; }
+        #navMenu {
+            background: white;
+            padding: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            overflow-x: auto;
         }
-        
-        /* ⚙️ USER MANAGEMENT MODAL STYLES (NEW) */
-        .modal {
-            display: none; 
-            position: fixed; 
-            z-index: 100;
-            left: 0;
-            top: 0;
+        #navMenu button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            white-space: nowrap;
+            transition: 0.3s;
+        }
+        #navMenu button:hover, #navMenu button.active {
+            background: #003087;
+            transform: translateY(-2px);
+        }
+        .container { max-width: 1400px; margin: 20px auto; padding: 0 15px; }
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+        .hidden { display: none !important; }
+        .tab { display: none; }
+        .tab.active { display: block; animation: fadeIn 0.4s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        input, select, button {
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+        input, select {
             width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.4); 
-            padding-top: 60px;
+            border: 1px solid var(--border-color);
+        }
+        input:focus, select:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(11,77,141,0.2);
+        }
+        button {
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-warning { background: var(--warning); color: white; }
+        .btn-sm { padding: 6px 12px; font-size: 13px; }
+        .btn-pay { background: var(--success); }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th {
+            background: var(--primary);
+            color: white;
+            padding: 14px;
+            text-align: left;
+        }
+        td {
+            padding: 16px 12px;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+            vertical-align: middle;
+        }
+        tr:nth-child(even) { background: #f9fbfd; }
+        tr:hover { background: #f0f8ff; }
+        .status-badge {
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: inline-block;
+            min-width: 100px;
+            text-align: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+        .status-paid { background: var(--paid-bg); color: var(--paid-text); border: 2px solid #a8e6b0; }
+        .status-partial { background: var(--partial-bg); color: var(--partial-text); border: 2px solid #ffe08a; }
+        .status-pending { background: var(--pending-bg); color: var(--pending-text); border: 2px solid #f1aeb5; }
+        .flex { display: flex; gap: 20px; flex-wrap: wrap; }
+        .stat-card {
+            flex: 1;
+            min-width: 180px;
+            background: linear-gradient(135deg, var(--primary), #0b6bc7);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .big-stat {
+            padding: 35px;
+            border-radius: 20px;
+            text-align: center;
+            color: white;
+            font-size: 36px;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+        .big-balance { background: linear-gradient(135deg, #27ae60, #1e8449); }
+        .big-outstanding { background: linear-gradient(135deg, #e67e22, #d35400); }
+        .chart-container {
+            max-width: 420px;
+            margin: 30px auto;
+            height: 320px;
+        }
+        .modal {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
         }
         .modal-content {
-            background-color: #fefefe;
-            margin: 5% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 90%; 
-            max-width: 600px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            width: 95%;
+            max-width: 900px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
-        .close-btn {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-        }
-        .close-btn:hover, .close-btn:focus {
-            color: #000;
-            text-decoration: none;
-            cursor: pointer;
-        }
-        .user-form-grid {
+        .fees-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .fees-group {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        .fees-group h4 {
+            margin-bottom: 15px;
+            color: var(--primary);
+            text-align: center;
+        }
+        .loading {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(255,255,255,0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
             gap: 15px;
         }
-        .user-form-grid input, .user-form-grid select {
-            max-width: none;
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
         }
-        .full-width {
-            grid-column: 1 / -1;
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .vr-container {
+            width: 100%;
+            height: 600px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+            margin: 25px 0;
+        }
+        #loginScreen {
+            max-width: 420px;
+            margin: 80px auto;
+            padding: 40px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            text-align: center;
+        }
+        .payment-details {
+            color: var(--primary);
+            cursor: pointer;
+            text-decoration: underline;
+            font-weight: 500;
+        }
+        @media print {
+            body * { visibility: hidden; }
+            #learnersListModal, #learnersListModal * { visibility: visible; }
+            #learnersListModal { position: absolute; left: 0; top: 0; width: 100%; background: white; }
+            .no-print { display: none !important; }
+            header, #navMenu, .loading, #loginScreen { display: none; }
         }
     </style>
 </head>
 <body>
-
-<div id="loginScreen" class="container">
-  <h2><i class="fas fa-lock"></i> USMS— Login</h2>
-  <p id="loginMsg" style="color:red;"></p>
-  <label>Username:</label><br>
-  <input id="username" type="text" placeholder="Enter username"><br>
-  <label>Password:</label><br>
-  <input id="password" type="password" placeholder="Enter password"><br>
-  <label>Role:</label><br>
-  <select id="role">
-    <option value="admin">Admin</option>
-    <option value="finance">Finance</option>
-    <option value="bursal">Bursal</option> 
-    <option value="teacher" selected>Teacher</option>
-    <option value="headteacher">Headteacher</option>
-    <option value="dos">DOS</option>
-  </select><br><br>
-  <button onclick="login()"><i class="fas fa-sign-in-alt"></i> Login</button>
+<div id="loadingScreen" class="loading">
+    <div class="spinner"></div>
+    <p>Loading USMS Rwanda ...</p>
 </div>
-
+<div id="loginScreen">
+    <h2><i class="fas fa-school fa-2x"></i><br>USMS Rwanda </h2>
+    <p><strong>Unified Multi-School Management System</strong></p>
+    <p style="margin:20px 0; color:#555;">Offline-Capable • Multi-School • Secure</p>
+    <input type="text" id="username" placeholder="Username (admin/finance or staff code for head teachers)" autocomplete="username" required>
+    <input type="password" id="password" placeholder="Password" autocomplete="current-password" required>
+    <button class="btn-primary" style="width:100%; padding:14px; margin-top:20px;" onclick="login()">Login</button>
+    <p style="margin-top:30px; font-size:14px; color:#666;">
+        Contact your system administrator for login credentials.<br>
+        Try to use safety credentials and <br>
+        Use strong password with Characters, Symbols, Numbers,Small letters and acapital letters.
+    </p>
+</div>
 <div id="app" class="hidden">
-  <header>
-    <div id="userInfo"><i class="fas fa-user-circle"></i></div>
-    <button onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
-  </header>
-
-  <nav id="navMenu" class="container"></nav>
-
-  <div class="container">
-    <div id="dashboard" class="tab">
-        <h3><i class="fas fa-tachometer-alt"></i> Dashboard Overview</h3>
-        <p>System features operational. Key metrics and summaries are provided below.</p>
-        
-        <div class="flex-row">
-            <div class="dashboard-card" style="background:#e6f3ff;"><h4>Total Classes</h4><p id="dashTotalClasses">0</p></div>
-            <div class="dashboard-card" style="background:#e6f7ff;"><h4>Total Learners</h4><p id="dashTotalLearners">0</p></div>
-            <div class="dashboard-card" style="background:#e6fff3;"><h4>Total Users</h4><p id="dashTotalUsers">0</p></div>
-            <div class="dashboard-card" style="background:#fff3e6;"><h4>Active Subjects</h4><p id="dashTotalSubjects">0</p></div>
+    <header>
+        <div id="schoolInfo">
+            <div id="schoolName">Select a School</div>
+            <div id="schoolCode"></div>
+            <div id="headTeacher"></div>
+            <small id="schoolLocation"></small>
         </div>
-        
-        <hr>
-
-        <div id="dashFinanceSummary">
-            <h4><i class="fas fa-hand-holding-usd"></i> Financial Health (YTD)</h4>
-            <div class="flex-row">
-                <div class="dashboard-card" style="background:#e8f8f5;"><h4>Current Balance (RWF)</h4><p id="dashBalance">N/A</p></div>
-                <div class="dashboard-card" style="background:#f9f5ff;"><h4>Total Income (RWF)</h4><p id="dashIncome">N/A</p></div>
-                <div class="dashboard-card" style="background:#ffe8e8;"><h4>Total Expenses (RWF)</h4><p id="dashExpense">N/A</p></div>
-                <div class="dashboard-card" style="background:#fffbe6;"><h4>Fee Collection Rate</h4><p id="dashFeeRate">N/A</p></div>
-            </div>
-            
-            <div class="budget-alert-card" id="dashBudgetAlert">
-                <h4 style="color:#2c3e50;"><i class="fas fa-money-check"></i> Budget Performance (Current Month)</h4>
-                <div id="budgetStatusDetails">Loading monthly budget status...</div>
-            </div>
-            
-        </div>
-
-        <div id="dashAcademicSummary">
-            <h4><i class="fas fa-chart-line"></i> Academic & Operational Metrics</h4>
-            <div class="flex-row">
-                <div class="dashboard-card" style="flex-direction: column;">
-                    <h5>Learner Distribution</h5>
-                    <canvas id="learnerChart" height="150"></canvas>
-                </div>
-                <div class="dashboard-card" style="flex-direction: column;">
-                    <h5>Attendance Trend (Last 7 Days)</h5>
-                    <canvas id="attendanceChart" height="150"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div id="classes" class="tab"><h3><i class="fas fa-chalkboard-teacher"></i> Class Management</h3><button onclick="addClass()">Add New Class</button><div id="classList"></div></div>
-    
-    <div id="assignments" class="tab">
-        <h3><i class="fas fa-user-tag"></i> Teacher Assignments</h3>
-        <p>Assign classes to specific teachers here. Only staff with appropriate roles can be assigned.</p>
-        <div id="assignmentsList"></div>
-    </div>
-    
-    <div id="timetable" class="tab">
-        <h3><i class="fas fa-clock"></i> School Timetable Manager</h3>
-        <p>Current School: **<span id="ttSchoolName"></span>**</p>
-        
-        <div class="timetable-rule">
-            <h4><i class="fas fa-list-ol"></i> Manage Periods/Time Slots (Required)</h4>
-            <div id="periodList"></div>
-            <div style="display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; max-width: 600px;">
-                <input type="text" id="newPeriodTime" placeholder="e.g., 11:10 - 11:50" required style="flex: 1; max-width: none;">
-                <input type="text" id="newPeriodType" placeholder="e.g., Lesson or BREAK" value="Lesson" style="flex: 1; max-width: none;">
-                <button onclick="addPeriod()" style="background: #4682b4; color: white; padding: 8px 16px;"><i class="fas fa-plus"></i> Add Period</button>
-            </div>
-        </div>
-
-        <div class="timetable-rule">
-            <h4><i class="fas fa-book-open"></i> Subject Hour Requirements (Rules)</h4>
-            <p>Set the **required number of weekly lessons** for each Subject in each Class.</p>
-            <div class="rule-form">
-                <select id="ruleClass" required><option value="">Select Class</option></select>
-                <select id="ruleSubject" required><option value="">Select Subject</option></select>
-                <input type="number" id="ruleHours" placeholder="Weekly Hours" min="1" max="15" required style="max-width: none;">
-                <button onclick="addSubjectRule()"><i class="fas fa-plus-circle"></i> Add Rule</button>
-            </div>
-            <ul id="subjectRulesList" class="rule-list"></ul>
-        </div>
-        
-        <div class="timetable-rule" style="text-align: center;">
-            <button onclick="generateTimetableAuto()" style="background: #e74c3c; color: white; font-size: 16px; padding: 12px 24px; margin: 10px 0;">
-                <i class="fas fa-magic"></i> **Auto-Generate Timetable!**
-            </button>
-            <button onclick="clearAllTimetableSlots()" style="background: #95a5a6; color: white; margin-left: 10px;">
-                <i class="fas fa-trash-alt"></i> Clear All Slots
-            </button>
-            <div id="generationStatus" style="margin-top: 10px; color: #333; font-weight: bold;"></div>
-        </div>
-
-        <hr>
-        
-        <h4><i class="fas fa-table"></i> Current Timetable Grid (Classes vs. Time Slots)</h4>
-        <div id="timetableGrid" class="timetable-grid-container"></div>
-    </div>
-    
-    <div id="attendance" class="tab"><h3><i class="fas fa-calendar-check"></i> Attendance Tracking</h3><p>Mark daily attendance for students.</p><div id="attendanceForm"></div></div>
-    <div id="learners" class="tab">
-        <h3><i class="fas fa-user-graduate"></i> Learner Management</h3>
-        <div class="flex-row" style="margin-bottom: 10px;">
-            <button onclick="addLearner()" class="action-btn"><i class="fas fa-plus"></i> Add New Learner</button>
-            <button onclick="importList('learners')" class="import-btn"><i class="fas fa-file-import"></i> Import Learners</button>
-            <button onclick="exportList('learners')" class="export-btn"><i class="fas fa-file-export"></i> Export List</button>
-            <button onclick="downloadImportTemplate('learners')" class="action-btn" style="background: #4682b4;"><i class="fas fa-download"></i> Template</button>
-        </div>
-        <div id="learnerList"></div>
-    </div>
-    <div id="users" class="tab">
-        <h3><i class="fas fa-users-cog"></i> User Management (Staff)</h3>
-        <input type="file" id="staffImportFile" accept=".xlsx, .xls, .csv" class="hidden" onchange="processStaffImport(event)">
-        
-        <div class="flex-row" style="margin-bottom: 10px;">
-            <button onclick="showUserForm()" class="action-btn"><i class="fas fa-user-plus"></i> Add New Staff User</button>
-            <button onclick="importList('staff')" class="import-btn"><i class="fas fa-file-import"></i> Import Staff</button>
-            <button onclick="exportList('staff')" class="export-btn"><i class="fas fa-file-export"></i> Export List</button>
-            <button onclick="downloadImportTemplate('staff')" class="action-btn" style="background: #4682b4;"><i class="fas fa-download"></i> Template</button>
-        </div>
-        <div id="userList"></div>
-    </div>
-    <div id="subjects" class="tab"><h3><i class="fas fa-book"></i> Subject Management</h3><input type="text" id="newSubjectName" placeholder="Enter new subject name" style="max-width:200px;"><button onclick="addSubject()">Add Subject</button><div id="subjectList"></div></div>
-    <div id="createSubjects" class="tab"><h3><i class="fas fa-layer-group"></i> Bulk Subject Entry</h3><textarea id="bulkSubjectsInput" placeholder="Enter subjects separated by commas or new lines (e.g., Physics, Chemistry, Biology)" rows="5"></textarea><button onclick="bulkAddSubjects()">Process Bulk Subjects</button></div>
-    <div id="marks" class="tab"><h3><i class="fas fa-graduation-cap"></i> Marks Manager</h3><p>Enter and view student marks here.</p><button onclick="addMark()">Add New Mark Entry</button><div id="marksEntry"></div></div>
-
-    <div id="financeTab" class="tab">
-        <h1><i class="fas fa-dollar-sign"></i> School Financial Manager (RWF)</h1>
-        <p>Track budgets for clubs, events, and fees. Secure, precise, and exportable.</p>
-
-        <h2><i class="fas fa-chart-pie"></i> Set Monthly Expense Budgets</h2>
-        <form id="budgetForm" style="margin-bottom: 20px;">
-            <select id="budgetCategory" required style="max-width:180px;"><option value="">Select Expense Category</option><option value="club">Club Budget</option><option value="event">Event</option><option value="supplies">Supplies</option></select>
-            <input type="number" id="budgetAmount" placeholder="Monthly Limit (RWF)" step="0.01" min="1" required style="max-width:200px;">
-            <input type="month" id="budgetMonth" required style="max-width:150px;">
-            <button type="submit" style="background: #ffc107; color: #333; font-weight: 500;">Set/Update Budget</button>
-        </form>
-        <div id="currentBudgetsList"></div>
-
-
-        <h2><i class="fas fa-file-invoice-RWF"></i> Add Transaction</h2>
-        <form id="transactionForm">
-            <input type="number" id="amount" placeholder="Amount (e.g., 10000.50 RWF)" step="0.01" required style="max-width:200px;">
-            <select id="type" required style="max-width:180px;"><option value="">Select Type</option><option value="income">Income (Fees/Donations)</option><option value="expense">Expense (Supplies/Events)</option></select>
-            <select id="category" required style="max-width:180px;"><option value="">Select Category</option><option value="club">Club Budget</option><option value="event">Event</option><option value="fees">Student Fees</option><option value="supplies">Supplies</option></select>
-            <input type="date" id="date" required style="max-width:150px;">
-            <input type="text" id="description" placeholder="Description" required style="max-width:250px;">
-            <button type="submit">Add Transaction</button>
-        </form>
-
-        <h2><i class="fas fa-search"></i> Transaction History & Reporting</h2>
-        
-        <div class="filter-controls">
-            <label for="filterStartDate">Start Date:</label>
-            <input type="date" id="filterStartDate" onchange="loadFinanceData(true)">
-
-            <label for="filterEndDate">End Date:</label>
-            <input type="date" id="filterEndDate" onchange="loadFinanceData(true)">
-
-            <label for="filterType">Type:</label>
-            <select id="filterType" onchange="loadFinanceData(true)">
-                <option value="all">All Types</option>
-                <option value="income">Income</option>
-                <option value="expense">Expense</option>
+        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+            <select id="schoolSelector" onchange="switchSchool(this.value)"></select>
+            <button class="btn-success btn-sm" id="addSchoolBtn" onclick="showAddSchoolModal()">+ Add School</button>
+            <button class="btn-primary btn-sm" id="editSchoolBtn" onclick="showEditSchoolModal()" style="display:none;">Edit School</button>
+            <select id="yearSelector" onchange="changeYear(this.value)">
+                <option value="2024-2025">2024-2025</option>
+                <option value="2025-2026" selected>2025-2026</option>
+                <option value="2026-2027">2026-2027</option>
             </select>
-
-            <label for="filterCategory">Category:</label>
-            <select id="filterCategory" onchange="loadFinanceData(true)">
-                <option value="all">All Categories</option>
-                <option value="club">Club Budget</option>
-                <option value="event">Event</option>
-                <option value="fees">Student Fees</option>
-                <option value="supplies">Supplies</option>
+            <select id="termSelector" onchange="changeTerm(this.value)">
+                <option value="1" selected>Term 1</option>
+                <option value="2">Term 2</option>
+                <option value="3">Term 3</option>
             </select>
-            
-            <label for="filterSearch">Search:</label>
-            <input type="text" id="filterSearch" placeholder="Search description..." onkeyup="loadFinanceData(true)">
-
-            <button onclick="generateReport()" style="background: #337ab7; color: white;"><i class="fas fa-file-export"></i> Export Report (CSV/PDF)</button>
+            <div id="userInfo"><i class="fas fa-user-circle"></i> <span id="currentUser">User</span></div>
+            <button onclick="logout()" class="btn-danger btn-sm">Logout</button>
         </div>
-
-
-        <div id="financeDashboard">
-            <div class="finance-card">
-                <h3>Current Balance</h3>
-                <div id="balance">RWF 0.00</div>
+    </header>
+    <nav id="navMenu">
+        <button onclick="showTab('dashboard')" class="active">Dashboard</button>
+        <button onclick="showTab('learners')">Learners</button>
+        <button onclick="showTab('staff')">Staff</button>
+        <button onclick="showTab('classes')">Classes</button>
+        <button onclick="showTab('feesTab')">Fees</button>
+        <button onclick="showTab('financeTab')">Finance</button>
+        <button onclick="showTab('vrTab')">VR Tour</button>
+    </nav>
+    <div class="container">
+        <div id="dashboard" class="tab active card">
+            <h2>Dashboard - Term <span id="dashTerm">1</span> <span id="dashYear">2025-2026</span></h2>
+            <div class="flex">
+                <div class="stat-card"><h3 id="dashTotalLearners">0</h3><p>Total Learners</p></div>
+                <div class="stat-card"><h3 id="dashBoys">0</h3><p>Boys</p></div>
+                <div class="stat-card"><h3 id="dashGirls">0</h3><p>Girls</p></div>
+                <div class="stat-card"><h3 id="dashTotalStaff">0</h3><p>Total Staff</p></div>
+                <div class="stat-card"><h3 id="dashFeesCollected">RWF 0</h3><p>Collected</p></div>
+                <div class="stat-card"><h3 id="dashFeesRate">0%</h3><p>Collection Rate</p></div>
+                <div class="stat-card"><h3 id="dashTotalClasses">0</h3><p>Classes</p></div>
             </div>
-            <div class="finance-card">
-                <h3>Quick Stats (Filtered)</h3>
-                <ul id="stats"></ul>
+        </div>
+        <div id="learners" class="tab card">
+            <h2>Learners Management</h2>
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px;">
+                <button class="btn-success" onclick="showAddLearnerModal()">Add Learner</button>
+                <button class="btn-primary" onclick="showLearnersListModal('all')">Full List</button>
+                <button class="btn-success" onclick="showLearnersListModal('paid')">Paid</button>
+                <button class="btn-warning" onclick="showLearnersListModal('partial')">Partial</button>
+                <button class="btn-danger" onclick="showLearnersListModal('pending')">Pending</button>
+                <button class="btn-primary" onclick="exportLearners()">Export All</button>
+                <button class="btn-primary" onclick="downloadLearnerTemplate()">Template</button>
+                <button class="btn-primary" onclick="document.getElementById('importLearnersFile').click()">Import CSV</button>
+                <select id="classFilter" onchange="renderLearners()"><option value="">All Classes</option></select>
+                <input type="text" id="learnerSearch" onkeyup="renderLearners()" placeholder="Search by Code or Name..." style="flex:1;">
             </div>
-            <div class="finance-card">
-                <h3>Transaction History (Filtered)</h3>
-                <table id="transactionsTable">
-                    <thead><tr><th>Date</th><th>Type</th><th>Category</th><th>Amount (RWF)</th><th>Description</th><th>Actions</th></tr></thead>
-                    <tbody></tbody>
+            <input type="file" id="importLearnersFile" style="display:none" accept=".csv" onchange="importLearners(event)">
+            <div style="overflow-x:auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>SDMS Code</th>
+                            <th>Name</th>
+                            <th>Father's Name</th>
+                            <th>Mother's Name</th>
+                            <th>Class</th>
+                            <th>Gender</th>
+                            <th>Due</th>
+                            <th>Paid</th>
+                            <th>Balance</th>
+                            <th>Status</th>
+                            <th>Payments</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="learnerList"></tbody>
                 </table>
             </div>
-            <div class="finance-card">
-                <h3>Budget Chart (Filtered Categories)</h3>
-                <canvas id="budgetChart"></canvas>
-            </div>
         </div>
-        
-        <h2 style="margin-top: 40px;"><i class="fas fa-university"></i> Parent Fee Payment (via Bank Transfer)</h2>
-        <div id="paymentForm" class="finance-card">
-            <p>Parents: Enter student details to process fees via bank transfer integration (e.g., ACH or wire). On success, receive instant SMS confirmation.</p>
-            <form id="feePaymentForm">
-                <input type="text" id="studentId" placeholder="Student ID (e.g., S001)" required style="max-width:180px;">
-                <input type="number" id="feeAmount" placeholder="Fee Amount (e.g., 50000.00 RWF)" step="0.01" required style="max-width:200px;">
-                <input type="tel" id="parentPhone" placeholder="Parent Phone (e.g., +2507XXXXXXXX)" required style="max-width:200px;">
-                <button type="submit">Process Payment & Send SMS</button>
-            </form>
-            <div id="paymentStatus"></div>
+        <div id="staff" class="tab card">
+            <h2>Staff Management</h2>
+            <div style="margin-bottom:20px;">
+                <button class="btn-success" onclick="showAddStaffModal()">Add Staff</button>
+                <button class="btn-primary" onclick="exportStaff()">Export</button>
+                <button class="btn-primary" onclick="downloadStaffTemplate()">Template</button>
+                <button class="btn-primary" onclick="document.getElementById('importStaffFile').click()">Import</button>
+            </div>
+            <input type="file" id="importStaffFile" style="display:none" accept=".csv" onchange="importStaff(event)">
+            <table>
+                <thead><tr><th>Code</th><th>Name</th><th>Gender</th><th>Role</th><th>Actions</th></tr></thead>
+                <tbody id="staffList"></tbody>
+            </table>
         </div>
-
-        <h2 style="margin-top: 40px;"><i class="fas fa-mobile-alt"></i> Mobile/Bank Fee Payment (via SDMS Code)</h2>
-        <div id="sdmsPaymentForm" class="finance-card">
-            <p>Use your student's **SDMS Code** (e.g., S001-2025) for payments via MTN MoMo, Airtel Money, or bank app transfers. The system simulates the USSD/App flow.</p>
-            <form id="sdmsFeePaymentForm">
-                <input type="text" id="sdmsCode" placeholder="Student SDMS Code (e.g., S001-2025)" required style="max-width:250px;">
-                <input type="number" id="sdmsAmount" placeholder="Amount Paid (RWF)" step="0.01" required style="max-width:200px;">
-                <select id="paymentMethod" required style="max-width:200px;">
-                    <option value="">Select Payment Channel</option>
-                    <option value="MTM">MTN MoMo</option>
-                    <option value="Airtel">Airtel Money</option>
-                    <option value="BankApp">Bank Transfer/App</option>
-                </select>
-                <input type="tel" id="payerReference" placeholder="Payer Phone/Ref (e.g., +2507XXXXXXXX)" required style="max-width:200px;">
-                <button type="submit" style="background: #ff6600; color: white;">Process SDMS Payment</button>
-            </form>
-            <div id="sdmsPaymentStatus"></div>
-        </div>
-    </div>
-
-    <div id="lessonPlanTab" class="tab">
-      <h1><i class="fas fa-chalkboard"></i> Multi-Language Lesson Plan Generator</h1>
-        <form id="lessonForm">
-            <div class="section">
-                <div class="section-title">Language / Langue / Ururimi / Lugha</div>
-                <div class="form-group">
-                    <label for="language">Select Template Language</label>
-                    <select id="language" required>
-                        <option value="English">English (LESSON PLAN)</option>
-                        <option value="French">French (FICHE DE LEÇON)</option>
-                        <option value="Kinyarwanda" selected>Kinyarwanda (IMBATA Y’ISOMO)</option>
-                        <option value="Swahili">Swahili (ANDALIO LA SOMO)</option>
-                    </select>
-                </div>
+        <div id="classes" class="tab card">
+            <h2>Classes Management</h2>
+            <div style="margin-bottom:20px;">
+                <button class="btn-success" onclick="addClass()">Add New Class</button>
             </div>
-
-            <div class="section">
-                <div class="section-title">Lesson Plan Details</div>
-                <div class="form-group"><label for="school">School / École / Ishuri / Shule</label><input type="text" id="school" value="Bwenda Primary School" required style="max-width:320px;"></div>
-                <div class="form-group"><label for="teacher">Teacher / Enseignant / Umwarimu / Mwalimu</label><input type="text" id="teacher" placeholder="Enter teacher name" required style="max-width:320px;"></div>
-                <div class="form-group"><label for="subject">Subject / Branche / Inyigisho / Somo</label><select id="subject" required style="max-width:320px;"></select></div>
-                <div class="form-group"><label for="classLevel">Class / Classe / Umwaka / Kidato</label><select id="classLevel" required style="max-width:320px;"></select></div>
-                <div class="form-group"><label for="term">Term / Trimestre / Igihembwe / Muhula</label><input type="text" id="term" placeholder="e.g., Term 1" value="Term 1" required style="max-width:320px;"></div>
-                <div class="form-group"><label for="date">Date / Date / Itariki / Tarehe</label><input type="date" id="date" required style="max-width:320px;"></div>
-                <div class="form-group"><label for="unitNo">Unit No. / Unité / Umutwe / Mada</label><input type="text" id="unitNo" placeholder="e.g., Unit 3" style="max-width:320px;"></div>
-                <div class="form-group"><label for="lessonNo">Lesson No. / Leçon / Isomo / Somo</label><input type="text" id="lessonNo" placeholder="e.g., Lesson 1" style="max-width:320px;"></div>
-                <div class="form-group"><label for="duration">Duration (minutes) / Durée / Igihe / Muda</label><input type="number" id="duration" value="40" min="1" required style="max-width:320px;"></div>
-                <div class="form-group"><label for="classSize">Class Size / Nombre d’apprenants / Umubare w’abanyeshuri / Idadi ya wanafunzi</label><input type="number" id="classSize" value="30" min="1" required style="max-width:320px;"></div>
-                <div class="form-group"><label for="specialNeeds">Special Needs / Besoins particuliers / Ibyo bagenerwa byihariye / Mahitaji maalum</label><textarea id="specialNeeds" rows="2" placeholder="Types and number of learners with special needs" style="max-width:320px;"></textarea></div>
-            </div>
-
-            <div class="section">
-                <div class="section-title">Lesson Content / Contenu de la Leçon / Ubushobozi bw’isomo / Uwezo wa somo</div>
-                <div class="form-group"><label for="unitTitle">Unit Title / Titre de l’unité / Isomo ry’ingenzi / Somole yeye</label><input type="text" id="unitTitle" placeholder="Enter unit title" required style="max-width:320px;"></div>
-                <div class="form-group"><label for="keyCompetence">Key Unit Competence / Compétence clé / Ubushobozi bw’ingenzi / Uwezo uhitajiwao</label><textarea id="keyCompetence" rows="2" placeholder="Enter key unit competence" style="max-width:320px;"></textarea></div>
-                <div class="form-group"><label for="lessonTitle">Title of the Lesson / Titre de la leçon / Isomo / Somo lenyewe</label><input type="text" id="lessonTitle" placeholder="Enter lesson title" required style="max-width:320px;"></div>
-                <div class="form-group"><label for="instructionalObjective">Instructional Objective / Objectif Opérationnel / Integ ng’ en amukoro / Malengo ya kujifunza</label><textarea id="instructionalObjective" rows="2" placeholder="Enter lesson objectives" style="max-width:320px;"></textarea></div>
-                <div class="form-group"><label for="location">Location / Lieu / Imiterere / Mahali</label><input type="text" id="location" value="Classroom" required style="max-width:320px;"></div>
-                <div class="form-group"><label for="materials">Learning Materials / Matériel didactique / Imfashanyigisho / Vifaa</label><textarea id="materials" rows="2" placeholder="List materials for all learners" style="max-width:320px;"></textarea></div>
-                <div class="form-group"><label for="references">References / Références / Imyandiko / Vitabu vya rejea</label><textarea id="references" rows="2" placeholder="List references" style="max-width:320px;"></textarea></div>
-            </div>
-
-            <div class="section">
-                <div class="section-title">Additional Options</div>
-                <div class="checkbox-group">
-                    <input type="checkbox" id="aiActivities" checked>
-                    <label for="aiActivities">Include AI-generated content for activities, competences, and evaluation</label>
-                </div>
-            </div>
-
-            <button type="submit" class="submit-btn">Generate Lesson Plan</button>
-        </form>
-
-        <div id="output" class="output">
-            <h2 id="outputTitle">Generated Lesson Plan</h2>
-            <div id="lessonPlanContent"></div>
-            <div class="edit-note">You can edit the content below directly. Use the buttons to download as PDF (print-ready format) or DOCX (editable).</div><button>Download pdf</button>
-            <button class="download-btn" onclick="downloadPDF()"><i class="fas fa-file-pdf"></i> Download PDF (Print-Ready)</button>
-            <button class="download-btn" onclick="downloadDOCX()" style="background: #17a2b8;"><i class="fas fa-file-word"></i> Download DOCX (Editable)</button>
-        </div>
-    </div>
-    
-  </div>
-</div>
-
-<div id="userModal" class="modal">
-    <div class="modal-content">
-        <span class="close-btn" onclick="closeUserForm()">&times;</span>
-        <h2 id="userFormTitle">Add New Staff User</h2>
-        <p id="userFormMsg" style="color:red;"></p>
-        <form id="userForm" onsubmit="handleUserSubmit(event)">
-            <input type="hidden" id="userId" value="">
-            <div class="user-form-grid">
-                
-                <div class="form-group">
-                    <label for="form_username">Username *</label>
-                    <input type="text" id="form_username" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="form_password">Password (Leave blank to keep old) *</label>
-                    <input type="password" id="form_password" placeholder="min 4 characters">
-                </div>
-                
-                <div class="form-group">
-                    <label for="form_sdmsCode">SDMS Code (Staff Ref) *</label>
-                    <input type="text" id="form_sdmsCode" required placeholder="e.g., TCH001-2025">
-                </div>
-
-                <div class="form-group">
-                    <label for="form_idNumber">ID Number *</label>
-                    <input type="text" id="form_idNumber" required placeholder="e.g., 1199080xxxxxxxxx">
-                </div>
-
-                <div class="form-group">
-                    <label for="form_fullName">Full Name</label>
-                    <input type="text" id="form_fullName" placeholder="e.g., Jean Claude Murenzi">
-                </div>
-
-                <div class="form-group">
-                    <label for="form_email">Email</label>
-                    <input type="email" id="form_email" placeholder="e.g., staff@school.com">
-                </div>
-
-                <div class="form-group">
-                    <label for="form_telephone">Telephone *</label>
-                    <input type="tel" id="form_telephone" required placeholder="e.g., +25078xxxxxxx">
-                </div>
-                
-                <div class="form-group">
-                    <label for="form_gender">Gender</label>
-                    <select id="form_gender">
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-
-                <div class="form-group full-width">
-                    <label for="form_role">Role *</label>
-                    <select id="form_role" required>
-                        <option value="teacher">Teacher</option>
-                        <option value="admin">Admin</option>
-                        <option value="finance">Finance</option>
-                        <option value="bursal">Bursal</option>
-                        <option value="headteacher">Headteacher</option>
-                        <option value="dos">DOS</option>
-                    </select>
-                </div>
-
-            </div>
-            
-            <button type="submit" style="background:#0074D9; color:white; width:100%;"><i class="fas fa-save"></i> Save User</button>
-            <button type="button" onclick="closeUserForm()" style="background:#95a5a6; color:white; width:100%; margin-top:5px;">Cancel</button>
-        </form>
-    </div>
-</div>
-
-
-<script>
-// --- CONSOLIDATED JAVASCRIPT LOGIC ---
-
-// --- Core USMS Data & Setup (localStorage) ---
-let USERS = JSON.parse(localStorage.getItem("schoolUsers")) || [
-  { 
-    id: 1, 
-    username:"admin", 
-    password:"1234", 
-    role:"admin", 
-    sdmsCode: "ADM001-2025", 
-    idNumber: "1199080000000001",
-    fullName: "System Admin",
-    email: "admin@school.rw",
-    gender: "Male",
-    telephone: "+250788123456"
-  },
-  { 
-    id: 2, 
-    username:"teacher1@school.rw", // UPDATED: Using email as username for teachers
-    password:"1234", 
-    role:"teacher", 
-    sdmsCode: "TCH001-2025",
-    idNumber: "1199080000000002",
-    fullName: "Teacher One",
-    email: "teacher1@school.rw",
-    gender: "Female",
-    telephone: "+250788654321"
-  },
-  { id: 3, username:"finance@school.rw", password:"1234", role:"finance", sdmsCode: "FIN001-2025", idNumber: "1199080000000003", fullName: "Finance Officer", email: "finance@school.rw", gender: "Male", telephone: "+250788111222" },
-  { id: 4, username:"head@school.rw", password:"1234", role:"headteacher", sdmsCode: "HT001-2025", idNumber: "1199080000000004", fullName: "School Head", email: "head@school.rw", gender: "Male", telephone: "+250788333444" },
-];
-let classes = JSON.parse(localStorage.getItem("schoolClasses")) || ["P1", "P2", "S1"];
-let learners = JSON.parse(localStorage.getItem("schoolLearners")) || [
-    {name: "Student A", id: "S001", class: "P1", feeStatus: "Paid"}, 
-    {name: "Student B", id: "S002", class: "P2", feeStatus: "Partial"}, 
-    {name: "Student C", id: "S003", class: "P2", feeStatus: "Unpaid"}, 
-    {name: "Student D", id: "S004", class: "S1", feeStatus: "Paid"}
-];
-let subjects = JSON.parse(localStorage.getItem("schoolSubjects")) || ["Math","English", "Kinyarwanda", "Science", "History"];
-let teacherAssignments = JSON.parse(localStorage.getItem("teacherAssignments")) || { 
-    "P1": "teacher1@school.rw", 
-    "P2": "admin",
-    "S1": "admin"
-}; 
-let marks = JSON.parse(localStorage.getItem("schoolMarks")) || [];
-let attendance = JSON.parse(localStorage.getItem("schoolAttendance")) || []; 
-let timetableSettings = JSON.parse(localStorage.getItem("timetableSettings")) || { schoolName: "Charles Lwanga Primary School" };
-
-// --- TIMETABLE DATA STRUCTURES ---
-let timetableSlots = JSON.parse(localStorage.getItem("timetableSlots")) || []; 
-let periods = JSON.parse(localStorage.getItem("periods")) || [
-    { id: 1, time: "08:00 - 08:40", type: "Lesson" },
-    { id: 2, time: "08:40 - 09:20", type: "Lesson" },
-    { id: 3, time: "09:20 - 10:00", type: "Lesson" },
-    { id: 4, time: "10:00 - 10:30", type: "BREAK" }, 
-    { id: 5, time: "10:30 - 11:10", type: "Lesson" },
-    { id: 6, time: "11:10 - 11:50", type: "Lesson" },
-    { id: 7, time: "11:50 - 12:30", type: "Lesson" }
-];
-const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
-
-let subjectRules = JSON.parse(localStorage.getItem("subjectRules")) || [
-    { class: "P1", subject: "Math", hours: 5 },
-    { class: "P1", subject: "English", hours: 5 },
-    { class: "P1", subject: "Science", hours: 3 },
-    { class: "P2", subject: "Math", hours: 4 },
-    { class: "S1", subject: "History", hours: 3 },
-    { class: "S1", subject: "Math", hours: 5 }
-];
-// --- END TIMETABLE DATA STRUCTURES ---
-
-
-let attendanceRecords = JSON.parse(localStorage.getItem("schoolAttendanceRecords")) || [
-    {date: '2025-11-07', present: 28, absent: 2},
-    {date: '2025-11-08', present: 29, absent: 1},
-    {date: '2025-11-09', present: 30, absent: 0},
-    {date: '2025-11-10', present: 27, absent: 3},
-    {date: '2025-11-11', present: 29, absent: 1},
-    {date: '2025-11-12', present: 30, absent: 0},
-    {date: new Date().toISOString().split('T')[0], present: learners.length - 1, absent: 1},
-];
-
-let financeTransactions = JSON.parse(localStorage.getItem("financeTransactions")) || [
-    {id: 1, amount: 500000, type: 'income', category: 'fees', date: '2025-10-01', description: 'Term 1 Fees Batch 1'},
-    {id: 2, amount: 50000, type: 'expense', category: 'supplies', date: '2025-10-05', description: 'A4 Paper and ink'},
-    {id: 3, amount: 20000, type: 'expense', category: 'club', date: '2025-10-10', description: 'Science Club materials'},
-    {id: 4, amount: 250000, type: 'income', category: 'fees', date: '2025-10-15', description: 'Term 1 Fees Batch 2'},
-];
-
-let budgets = JSON.parse(localStorage.getItem("financeBudgets")) || [
-    {id: 1, category: 'supplies', amount: 100000, month: '2025-10'},
-    {id: 2, category: 'event', amount: 50000, month: '2025-10'},
-];
-
-
-let currentUser = null;
-let financeDataCache = financeTransactions; 
-let filteredFinanceData = financeTransactions; 
-
-
-function saveData(){
-  localStorage.setItem("schoolUsers", JSON.stringify(USERS));
-  localStorage.setItem("schoolClasses", JSON.stringify(classes));
-  localStorage.setItem("schoolLearners", JSON.stringify(learners));
-  localStorage.setItem("schoolSubjects", JSON.stringify(subjects));
-  localStorage.setItem("teacherAssignments", JSON.stringify(teacherAssignments));
-  localStorage.setItem("schoolMarks", JSON.stringify(marks));
-  localStorage.setItem("schoolAttendance", JSON.stringify(attendance));
-  localStorage.setItem("timetableSettings", JSON.stringify(timetableSettings));
-  localStorage.setItem("schoolAttendanceRecords", JSON.stringify(attendanceRecords));
-  localStorage.setItem("timetableSlots", JSON.stringify(timetableSlots));
-  localStorage.setItem("periods", JSON.stringify(periods));
-  localStorage.setItem("subjectRules", JSON.stringify(subjectRules)); 
-  localStorage.setItem("financeTransactions", JSON.stringify(financeTransactions)); 
-  localStorage.setItem("financeBudgets", JSON.stringify(budgets)); 
-}
-
-// --- Authentication Functions ---
-function login(){
-  const role = document.getElementById("role").value;
-  const username = document.getElementById("username").value.trim();
-  const password = document.getElementById("password").value.trim();
-  const user = USERS.find(u => u.username===username && u.password===password && u.role===role);
-  if(!user) return document.getElementById("loginMsg").textContent="Invalid login!";
-  
-  currentUser = user;
-  document.getElementById("loginScreen").classList.add("hidden");
-  document.getElementById("app").classList.remove("hidden");
-  document.getElementById("userInfo").innerHTML = `<i class="fas fa-user-circle"></i> ${user.username} (${user.role.toUpperCase()})`;
-  
-  buildMenu(user.role);
-  openTab("dashboard");
-}
-
-function logout(){ localStorage.clear(); location.reload(); }
-
-// --- Menu and Tab Management ---
-function buildMenu(role){
-  const nav = document.getElementById("navMenu");
-  nav.innerHTML = "";
-  const addButton = (tab,label,icon) => nav.innerHTML += `<button id="btn-${tab}" onclick="openTab('${tab}')"><i class="${icon}"></i> ${label}</button>`;
-  
-  addButton("dashboard","Dashboard", "fas fa-tachometer-alt");
-  
-  if (role === "admin") {
-    addButton("classes","Classes", "fas fa-chalkboard-teacher");
-    addButton("assignments","Assignments", "fas fa-user-tag");
-    addButton("timetable","Timetable", "fas fa-clock");
-    addButton("users","Users", "fas fa-users-cog");
-  }
-  
-  if (["admin", "teacher", "headteacher", "dos", "bursal"].includes(role)) { 
-    addButton("learners","Learners", "fas fa-user-graduate");
-    addButton("attendance","Attendance", "fas fa-calendar-check");
-    addButton("marks","Marks", "fas fa-graduation-cap");
-  }
-  
-  if (role !== "teacher") { 
-    addButton("subjects","Subjects", "fas fa-book");
-    addButton("createSubjects","Bulk Subjects", "fas fa-layer-group");
-  }
-
-  if (["admin", "teacher"].includes(role)) { 
-    addButton("lessonPlanTab","Lesson Plan", "fas fa-chalkboard");
-  }
-  
-  if (["admin", "finance", "headteacher", "bursal"].includes(role)) { 
-    addButton("financeTab","Finance", "fas fa-dollar-sign");
-  }
-}
-
-function openTab(tab){
-  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-  document.getElementById(tab).classList.add("active");
-  document.querySelectorAll("#navMenu button").forEach(b => b.classList.remove("active"));
-  const tabButton = document.getElementById(`btn-${tab}`);
-  if (tabButton) {
-      tabButton.classList.add("active");
-  }
-  
-  if(tab==="dashboard") renderDashboard();
-  if(tab==="classes") displayClasses();
-  if(tab==="assignments") displayAssignments(); 
-  if(tab==="timetable") loadTimetableTab(); 
-  if(tab==="attendance") loadAttendanceTab();
-  if(tab==="learners") displayLearners();
-  if(tab==="users") displayUsers();
-  if(tab==="subjects") displaySubjects();
-  if(tab==="createSubjects") document.getElementById('bulkSubjectsInput').value = subjects.join('\n');
-  if(tab==="marks") showMarksTab();
-  if(tab==="lessonPlanTab") loadLessonPlanTab(); 
-  if(tab==="financeTab") initFinance();
-}
-
-// --- USMS CORE FUNCTIONS ---
-
-// ** 1. DASHBOARD **
-function renderDashboard(){
-    const totalLearners = learners.length;
-    const totalClasses = classes.length;
-    const totalUsers = USERS.length;
-    const totalSubjects = subjects.length;
-
-    document.getElementById('dashTotalLearners').textContent = totalLearners;
-    document.getElementById('dashTotalClasses').textContent = totalClasses;
-    document.getElementById('dashTotalUsers').textContent = totalUsers;
-    document.getElementById('dashTotalSubjects').textContent = totalSubjects;
-    
-    // Finance Summary (needs data from finance module)
-    const metrics = calculateFinanceMetrics(financeTransactions);
-    document.getElementById('dashBalance').textContent = `RWF ${metrics.balance.toFixed(2)}`;
-    document.getElementById('dashIncome').textContent = `RWF ${metrics.totalIncome.toFixed(2)}`;
-    document.getElementById('dashExpense').textContent = `RWF ${metrics.totalExpense.toFixed(2)}`;
-    
-    const paidLearners = learners.filter(l => l.feeStatus === 'Paid').length;
-    const feeRate = totalLearners > 0 ? (paidLearners / totalLearners * 100).toFixed(1) : 0;
-    document.getElementById('dashFeeRate').textContent = `${feeRate}%`;
-
-    updateBudgetPerformance(financeTransactions);
-
-    // Chart Data
-    const classCounts = classes.map(c => ({ class: c, count: learners.filter(l => l.class === c).length }));
-    const learnerLabels = classCounts.map(c => c.class);
-    const learnerData = classCounts.map(c => c.count);
-    
-    // Attendance data (Last 7 days)
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    const recentAttendance = attendanceRecords
-        .filter(r => new Date(r.date) >= sevenDaysAgo)
-        .sort((a, b) => new Date(a.date) - new Date(b.date));
-
-    const attendanceLabels = recentAttendance.map(r => new Date(r.date).toLocaleDateString('en-RW', { weekday: 'short' }));
-    const attendanceData = recentAttendance.map(r => (r.present / (r.present + r.absent) * 100).toFixed(0));
-
-    // Render Charts
-    renderChart('learnerChart', 'doughnut', learnerLabels, learnerData, 'Learner Count by Class');
-    renderChart('attendanceChart', 'line', attendanceLabels, attendanceData, 'Daily Attendance Rate (%)');
-}
-
-function renderChart(canvasId, type, labels, data, chartTitle) {
-    const ctx = document.getElementById(canvasId).getContext('2d');
-    if (window[canvasId + 'Chart']) {
-        window[canvasId + 'Chart'].destroy();
-    }
-    window[canvasId + 'Chart'] = new Chart(ctx, {
-        type: type,
-        data: {
-            labels: labels,
-            datasets: [{
-                label: chartTitle,
-                data: data,
-                backgroundColor: type === 'doughnut' ? ['#0074D9', '#2ecc71', '#f1c40f', '#e74c3c', '#9b59b6'] : '#3498db',
-                borderColor: type === 'doughnut' ? 'white' : '#3498db',
-                borderWidth: type === 'doughnut' ? 2 : 1,
-                fill: type === 'line' ? false : true,
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: type === 'line' ? { y: { beginAtZero: true, max: 100 } } : {},
-            plugins: { legend: { display: type === 'doughnut' } }
-        }
-    });
-}
-
-
-// ** 2. CLASS MANAGEMENT **
-function addClass(){
-    const newClass = prompt("Enter new class name (e.g., P3, S2):");
-    if (newClass && newClass.trim() && !classes.includes(newClass.trim())) {
-        classes.push(newClass.trim());
-        saveData();
-        displayClasses();
-        alert(`Class ${newClass.trim()} added.`);
-    }
-}
-function deleteClass(className){
-    if (confirm(`Are you sure you want to delete class ${className}? This is irreversible.`)) {
-        classes = classes.filter(c => c !== className);
-        learners = learners.filter(l => l.class !== className); // Delete learners in this class
-        delete teacherAssignments[className]; // Remove assignment
-        timetableSlots = timetableSlots.filter(s => s.class !== className); // Remove timetable slots
-        subjectRules = subjectRules.filter(r => r.class !== className); // Remove subject rules
-        saveData();
-        displayClasses();
-        alert(`Class ${className} and associated data deleted.`);
-    }
-}
-function displayClasses(){
-    const list = document.getElementById('classList');
-    let html = '<h4>Registered Classes:</h4>';
-    if(classes.length === 0) {
-        html += '<p>No classes registered yet.</p>';
-    } else {
-        html += '<table><thead><tr><th>Class Name</th><th>Learners</th><th>Assigned Teacher</th><th>Actions</th></tr></thead><tbody>';
-        classes.forEach(c => {
-            const count = learners.filter(l => l.class === c).length;
-            const teacher = teacherAssignments[c] || 'Not Assigned';
-            const teacherName = USERS.find(u => u.username === teacher)?.fullName || teacher;
-
-            html += `
-                <tr>
-                    <td>**${c}**</td>
-                    <td>${count}</td>
-                    <td>${teacherName}</td>
-                    <td>
-                        <button onclick="deleteClass('${c}')" class="delete-btn"><i class="fas fa-trash"></i> Delete</button>
-                    </td>
-                </tr>
-            `;
-        });
-        html += '</tbody></table>';
-    }
-    list.innerHTML = html;
-}
-
-// ** 3. TEACHER ASSIGNMENTS **
-function getTeachers() {
-    return USERS.filter(u => u.role === 'teacher' || u.role === 'admin' || u.role === 'dos');
-}
-
-function displayAssignments(){
-    const list = document.getElementById('assignmentsList');
-    const teachers = getTeachers();
-    let html = '<h4>Assign Teacher to Class:</h4><table><thead><tr><th>Class</th><th>Current Teacher</th><th>New Teacher</th><th>Action</th></tr></thead><tbody>';
-
-    classes.forEach(c => {
-        const currentTeacherUsername = teacherAssignments[c] || 'Not Assigned';
-        const currentTeacherName = USERS.find(u => u.username === currentTeacherUsername)?.fullName || currentTeacherUsername;
-
-        let teacherOptions = teachers.map(t => 
-            `<option value="${t.username}" ${t.username === currentTeacherUsername ? 'selected' : ''}>${t.fullName} (${t.role})</option>`
-        ).join('');
-
-        html += `
-            <tr>
-                <td>**${c}**</td>
-                <td>${currentTeacherName}</td>
-                <td>
-                    <select id="select-teacher-${c}">
-                        <option value="">-- Select Teacher --</option>
-                        ${teacherOptions}
-                    </select>
-                </td>
-                <td>
-                    <button onclick="assignTeacherToClass('${c}')" class="action-btn" style="background: #28a745;"><i class="fas fa-check"></i> Assign</button>
-                    <button onclick="unassignClass('${c}')" class="delete-btn"><i class="fas fa-times"></i> Unassign</button>
-                </td>
-            </tr>
-        `;
-    });
-    html += '</tbody></table>';
-    list.innerHTML = html;
-}
-
-function assignTeacherToClass(className) {
-    const select = document.getElementById(`select-teacher-${className}`);
-    const selectedUsername = select.value;
-    
-    if (selectedUsername) {
-        teacherAssignments[className] = selectedUsername;
-        saveData();
-        displayAssignments();
-        alert(`Class ${className} assigned to ${selectedUsername}.`);
-    } else {
-        alert('Please select a teacher.');
-    }
-}
-
-function unassignClass(className) {
-    if (teacherAssignments[className]) {
-        delete teacherAssignments[className];
-        saveData();
-        displayAssignments();
-        alert(`Class ${className} unassigned.`);
-    }
-}
-
-// ** 4. TIMETABLE MANAGEMENT **
-function loadTimetableTab(){
-    document.getElementById('ttSchoolName').textContent = timetableSettings.schoolName;
-    renderPeriodList();
-    renderRuleControls();
-    renderSubjectRules();
-    renderTimetableGrid();
-}
-
-function renderRuleControls() {
-    const classSelect = document.getElementById('ruleClass');
-    const subjectSelect = document.getElementById('ruleSubject');
-    
-    classSelect.innerHTML = '<option value="">Select Class</option>' + classes.map(c => `<option value="${c}">${c}</option>`).join('');
-    subjectSelect.innerHTML = '<option value="">Select Subject</option>' + subjects.map(s => `<option value="${s}">${s}</option>`).join('');
-}
-
-function addSubjectRule() {
-    const classValue = document.getElementById('ruleClass').value;
-    const subjectValue = document.getElementById('ruleSubject').value;
-    const hoursValue = parseInt(document.getElementById('ruleHours').value);
-
-    if (!classValue || !subjectValue || isNaN(hoursValue) || hoursValue < 1) {
-        alert('Please select a class, subject, and enter valid weekly hours.');
-        return;
-    }
-    
-    // Check if rule already exists and update it
-    const existingIndex = subjectRules.findIndex(r => r.class === classValue && r.subject === subjectValue);
-
-    if (existingIndex !== -1) {
-        if (confirm(`Rule for ${subjectValue} in ${classValue} already exists. Update hours to ${hoursValue}?`)) {
-            subjectRules[existingIndex].hours = hoursValue;
-        } else {
-            return;
-        }
-    } else {
-        subjectRules.push({ class: classValue, subject: subjectValue, hours: hoursValue });
-    }
-
-    saveData();
-    renderSubjectRules();
-    alert('Subject rule saved!');
-}
-
-function renderSubjectRules() {
-    const list = document.getElementById('subjectRulesList');
-    list.innerHTML = '';
-    
-    subjectRules.forEach((rule, index) => {
-        list.innerHTML += `
-            <li>
-                <span>**${rule.class}**: ${rule.subject} (${rule.hours} hrs/week)</span>
-                <button onclick="deleteSubjectRule(${index})" class="delete-btn"><i class="fas fa-trash"></i></button>
-            </li>
-        `;
-    });
-}
-
-function deleteSubjectRule(index) {
-    if (confirm('Are you sure you want to delete this rule?')) {
-        subjectRules.splice(index, 1);
-        saveData();
-        renderSubjectRules();
-    }
-}
-
-function renderPeriodList() {
-    const list = document.getElementById('periodList');
-    list.innerHTML = '<h5>Periods:</h5>';
-    periods.forEach(p => {
-        list.innerHTML += `
-            <div style="display: inline-block; padding: 5px 10px; margin: 3px; background: #f0f8ff; border: 1px solid #d0e8ff; border-radius: 4px;">
-                ${p.time} [${p.type}] 
-                <button onclick="deletePeriod(${p.id})" class="delete-btn" style="padding: 2px 5px; margin-left: 5px;"><i class="fas fa-minus-circle"></i></button>
-            </div>
-        `;
-    });
-}
-
-function addPeriod() {
-    const time = document.getElementById('newPeriodTime').value.trim();
-    const type = document.getElementById('newPeriodType').value.trim() || 'Lesson';
-    if (time) {
-        const newId = periods.length > 0 ? Math.max(...periods.map(p => p.id)) + 1 : 1;
-        periods.push({ id: newId, time: time, type: type });
-        document.getElementById('newPeriodTime').value = '';
-        saveData();
-        renderPeriodList();
-        renderTimetableGrid(); 
-    }
-}
-
-function deletePeriod(id) {
-    periods = periods.filter(p => p.id !== id);
-    timetableSlots = timetableSlots.filter(s => s.periodId !== id); 
-    saveData();
-    renderPeriodList();
-    renderTimetableGrid();
-}
-
-function clearAllTimetableSlots() {
-    if (confirm("WARNING: This will clear ALL assigned subjects from the timetable grid. Proceed?")) {
-        timetableSlots = [];
-        saveData();
-        renderTimetableGrid();
-        document.getElementById('generationStatus').textContent = 'Timetable slots cleared.';
-    }
-}
-
-function generateTimetableAuto() {
-    document.getElementById('generationStatus').textContent = 'Starting auto-generation...';
-    timetableSlots = []; 
-    const classList = classes;
-    const periodList = periods.filter(p => p.type === 'Lesson'); 
-    
-    if (classList.length === 0 || periodList.length === 0 || subjectRules.length === 0) {
-        document.getElementById('generationStatus').textContent = 'Error: Need classes, periods, and subject rules to generate.';
-        return;
-    }
-
-    let classSchedules = {}; // { P1: { Math: 0, English: 0, ... }, ... }
-    classList.forEach(c => {
-        classSchedules[c] = {};
-        subjects.forEach(s => classSchedules[c][s] = 0);
-    });
-
-    const ruleMap = {}; // { P1: { Math: 5, English: 5, ... }, ... }
-    subjectRules.forEach(r => {
-        ruleMap[r.class] = ruleMap[r.class] || {};
-        ruleMap[r.class][r.subject] = r.hours;
-    });
-
-    // Simple Greedy Algorithm attempt
-    daysOfWeek.forEach(day => {
-        periodList.forEach(period => {
-            classList.forEach(classRoom => {
-                if (timetableSlots.some(s => s.day === day && s.periodId === period.id && s.class === classRoom)) {
-                    return; // Already scheduled
-                }
-
-                const requiredSubjects = Object.entries(ruleMap[classRoom] || {})
-                    .filter(([subject, hours]) => hours > (classSchedules[classRoom][subject] || 0)) // Subject is not fully scheduled
-                    .sort(([, h1], [, h2]) => h2 - h1) // Prioritize subjects with more hours remaining (most constrained)
-                    .map(([subject]) => subject);
-                
-                if (requiredSubjects.length > 0) {
-                    const subjectToAssign = requiredSubjects[0]; // Take the highest priority one
-
-                    // Find a teacher for this subject and class. (Simplification: Assign the class teacher if available, otherwise just use the subject.)
-                    const assignedTeacher = teacherAssignments[classRoom] || 'Unassigned';
-
-                    timetableSlots.push({
-                        class: classRoom,
-                        day: day,
-                        periodId: period.id,
-                        subject: subjectToAssign,
-                        teacher: assignedTeacher
-                    });
-                    
-                    // Increment the counter for this class/subject
-                    classSchedules[classRoom][subjectToAssign] = (classSchedules[classRoom][subjectToAssign] || 0) + 1;
-                }
-            });
-        });
-    });
-
-    // Check completion status
-    let allCompleted = true;
-    let statusMessage = 'Generation Complete. Status: ';
-    classList.forEach(c => {
-        const totalScheduled = Object.values(classSchedules[c]).reduce((sum, h) => sum + h, 0);
-        const totalRequired = Object.values(ruleMap[c] || {}).reduce((sum, h) => sum + h, 0);
-        
-        if (totalScheduled < totalRequired) {
-            statusMessage += `⚠️ ${c} incomplete (${totalScheduled}/${totalRequired}). `;
-            allCompleted = false;
-        } else {
-             statusMessage += `✅ ${c} complete. `;
-        }
-    });
-
-    document.getElementById('generationStatus').textContent = statusMessage;
-    saveData();
-    renderTimetableGrid();
-}
-
-function renderTimetableGrid() {
-    const gridContainer = document.getElementById('timetableGrid');
-    if (classes.length === 0 || periods.length === 0) {
-        gridContainer.innerHTML = '<p>Please add classes and time periods first.</p>';
-        return;
-    }
-
-    let tableHTML = '<table><thead><tr><th>Time/Day</th>';
-    periods.forEach(p => {
-        tableHTML += `<th>${p.time}</th>`;
-    });
-    tableHTML += '</tr></thead><tbody>';
-
-    classes.forEach(classRoom => {
-        tableHTML += `<tr><th style="background:#f9fbfd; color:#005fa3;">**${classRoom}**</th>`;
-        
-        periods.forEach(period => {
-            const slot = timetableSlots.find(s => s.class === classRoom && s.day === 'Monday' && s.periodId === period.id); // Simplification: Only show Monday's schedule for a fixed timetable grid
-            
-            if (period.type === 'BREAK') {
-                tableHTML += `<td style="background:#f0f0f0; color:#555;" colspan="${periods.length/periods.length}">**BREAK**</td>`;
-            } else if (slot) {
-                const teacherName = USERS.find(u => u.username === slot.teacher)?.fullName || slot.teacher;
-                tableHTML += `<td style="background:#e0f7fa; cursor:pointer;" title="Teacher: ${teacherName}">**${slot.subject}** (${teacherName})</td>`;
-            } else {
-                tableHTML += `<td style="background:#fff3f3; color:#aaa;">Unassigned</td>`;
-            }
-        });
-
-        tableHTML += '</tr>';
-    });
-    
-    tableHTML += '</tbody></table>';
-    gridContainer.innerHTML = 'Note: This simplified grid currently shows a fixed schedule, assuming Monday applies to all days. <hr>' + tableHTML;
-}
-
-
-// ** 5. ATTENDANCE **
-function loadAttendanceTab(){
-    const form = document.getElementById('attendanceForm');
-    const today = new Date().toISOString().split('T')[0];
-
-    const attendanceForToday = attendance.filter(a => a.date === today);
-    const learnerAttendanceStatus = {};
-    attendanceForToday.forEach(a => { learnerAttendanceStatus[a.id] = a.status; });
-    
-    let tableHTML = `
-        <form onsubmit="handleAttendanceSubmit(event)">
-            <h4>Attendance for: <input type="date" id="attendanceDate" value="${today}" required style="max-width:200px;"></h4>
             <table>
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Class</th>
-                        <th>Present</th>
-                        <th>Absent</th>
+                        <th style="width:30%;">Class Name</th>
+                        <th style="width:30%;">Number of Learners</th>
+                        <th style="width:40%;">Actions</th>
                     </tr>
                 </thead>
-                <tbody>
-    `;
-
-    learners.forEach(l => {
-        const isPresent = learnerAttendanceStatus[l.id] === 'P' || !learnerAttendanceStatus[l.id]; // Default to Present if unmarked
-        const isAbsent = learnerAttendanceStatus[l.id] === 'A';
-
-        tableHTML += `
-            <tr>
-                <td>${l.id}</td>
-                <td>${l.name}</td>
-                <td>${l.class}</td>
-                <td><input type="radio" name="status_${l.id}" value="P" ${isPresent ? 'checked' : ''} required></td>
-                <td><input type="radio" name="status_${l.id}" value="A" ${isAbsent ? 'checked' : ''}></td>
-            </tr>
-        `;
-    });
-
-    tableHTML += '</tbody></table><button type="submit" style="background:#0074D9; color:white;"><i class="fas fa-save"></i> Save Attendance</button></form>';
-    form.innerHTML = tableHTML;
-}
-
-function handleAttendanceSubmit(e){
-    e.preventDefault();
-    const date = document.getElementById('attendanceDate').value;
-    const newAttendance = [];
-    let presentCount = 0;
-    
-    learners.forEach(l => {
-        const status = document.querySelector(`input[name="status_${l.id}"]:checked`).value;
-        newAttendance.push({ id: l.id, date: date, class: l.class, status: status });
-        if (status === 'P') presentCount++;
-    });
-
-    // Filter out old entries for this date and add new ones
-    attendance = attendance.filter(a => a.date !== date);
-    attendance.push(...newAttendance);
-    
-    // Update the attendance records summary for dashboard chart
-    const summaryIndex = attendanceRecords.findIndex(r => r.date === date);
-    const summaryData = { date: date, present: presentCount, absent: learners.length - presentCount };
-
-    if (summaryIndex !== -1) {
-        attendanceRecords[summaryIndex] = summaryData;
-    } else {
-        attendanceRecords.push(summaryData);
-    }
-
-    saveData();
-    alert(`Attendance for ${date} saved successfully!`);
-    loadAttendanceTab();
-}
-
-
-// ** 6. LEARNER MANAGEMENT **
-function addLearner(){
-    const name = prompt("Enter learner's full name:");
-    const classLevel = prompt("Enter learner's class (e.g., P1):");
-    if (name && classLevel) {
-        const newId = `S${String(learners.length + 1).padStart(3, '0')}`;
-        learners.push({name: name.trim(), id: newId, class: classLevel.trim(), feeStatus: 'Unpaid'});
-        saveData();
-        displayLearners();
-        alert(`Learner ${name} added with ID: ${newId}.`);
-    }
-}
-function deleteLearner(id){
-    if (confirm(`Are you sure you want to delete learner ${id}?`)) {
-        learners = learners.filter(l => l.id !== id);
-        attendance = attendance.filter(a => a.id !== id);
-        marks = marks.filter(m => m.id !== id);
-        saveData();
-        displayLearners();
-        alert(`Learner ${id} deleted.`);
-    }
-}
-function displayLearners(){
-    const list = document.getElementById('learnerList');
-    let html = '<h4>Registered Learners:</h4>';
-    if(learners.length === 0) {
-        html += '<p>No learners registered yet.</p>';
-    } else {
-        html += '<table><thead><tr><th>ID</th><th>Name</th><th>Class</th><th>Fee Status</th><th>Actions</th></tr></thead><tbody>';
-        learners.forEach(l => {
-            let statusStyle = 'color:red;';
-            if(l.feeStatus === 'Paid') statusStyle = 'color:green; font-weight:bold;';
-            if(l.feeStatus === 'Partial') statusStyle = 'color:#f0ad4e; font-weight:bold;';
-
-            html += `
-                <tr>
-                    <td>**${l.id}**</td>
-                    <td>${l.name}</td>
-                    <td>${l.class}</td>
-                    <td style="${statusStyle}">${l.feeStatus}</td>
-                    <td>
-                        <button onclick="editLearner('${l.id}')" class="edit-btn"><i class="fas fa-edit"></i> Edit</button>
-                        <button onclick="deleteLearner('${l.id}')" class="delete-btn"><i class="fas fa-trash"></i> Delete</button>
-                    </td>
-                </tr>
-            `;
-        });
-        html += '</tbody></table>';
-    }
-    list.innerHTML = html;
-}
-function editLearner(id) {
-    alert(`Editing learner ${id}: Not yet fully implemented, but data structure supports it.`);
-}
-
-
-// ** 7. USER MANAGEMENT (STAFF) ** (Full implementation from previous prompt)
-function displayUsers(){
-    const list = document.getElementById('userList');
-    USERS.sort((a, b) => (a.id || 0) - (b.id || 0));
-
-    let tableHTML = `
-        <h4>Registered Staff Users:</h4>
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>SDMS Code</th>
-                    <th>Full Name</th>
-                    <th>Username</th>
-                    <th>Email</th>
-                    <th>Role</th>
-                    <th>Telephone</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-    `;
-    
-    USERS.forEach((u, index) => {
-        tableHTML += `
-            <tr>
-                <td>**${u.id || index + 1}**</td>
-                <td>${u.sdmsCode || 'N/A'}</td>
-                <td>${u.fullName || 'N/A'}</td>
-                <td>**${u.username}**</td>
-                <td>${u.email || 'N/A'}</td>
-                <td><span style="font-weight: bold; color: #0074D9;">${u.role.toUpperCase()}</span></td>
-                <td>${u.telephone || 'N/A'}</td>
-                <td>
-                    <button onclick="showUserForm(${u.id})" class="edit-btn"><i class="fas fa-edit"></i> Edit</button>
-                    <button onclick="deleteUser(${u.id})" class="delete-btn"><i class="fas fa-trash"></i> Delete</button>
-                </td>
-            </tr>
-        `;
-    });
-
-    tableHTML += '</tbody></table>';
-    list.innerHTML = tableHTML;
-}
-
-function showUserForm(userId) {
-    const modal = document.getElementById('userModal');
-    const form = document.getElementById('userForm');
-    const title = document.getElementById('userFormTitle');
-    const passwordInput = document.getElementById('form_password');
-    const userFormMsg = document.getElementById('userFormMsg');
-    
-    userFormMsg.textContent = '';
-    form.reset(); 
-
-    if (userId) {
-        const user = USERS.find(u => u.id === userId);
-        if (!user) return;
-
-        title.textContent = `Edit User: ${user.username}`;
-        document.getElementById('userId').value = user.id;
-        
-        document.getElementById('form_username').value = user.username;
-        document.getElementById('form_sdmsCode').value = user.sdmsCode || '';
-        document.getElementById('form_idNumber').value = user.idNumber || '';
-        document.getElementById('form_fullName').value = user.fullName || '';
-        document.getElementById('form_email').value = user.email || '';
-        document.getElementById('form_telephone').value = user.telephone || '';
-        document.getElementById('form_gender').value = user.gender || 'Male';
-        document.getElementById('form_role').value = user.role;
-        
-        passwordInput.placeholder = "Leave blank to keep old password";
-        passwordInput.removeAttribute('required');
-
-    } else {
-        title.textContent = 'Add New Staff User';
-        document.getElementById('userId').value = '';
-        passwordInput.placeholder = "min 4 characters";
-        passwordInput.setAttribute('required', 'required');
-    }
-
-    modal.style.display = 'block';
-}
-
-function closeUserForm() {
-    document.getElementById('userModal').style.display = 'none';
-}
-
-function handleUserSubmit(e) {
-    e.preventDefault();
-    const id = document.getElementById('userId').value;
-    const username = document.getElementById('form_username').value.trim();
-    const password = document.getElementById('form_password').value;
-    const sdmsCode = document.getElementById('form_sdmsCode').value.trim();
-    const idNumber = document.getElementById('form_idNumber').value.trim();
-    const fullName = document.getElementById('form_fullName').value.trim();
-    const email = document.getElementById('form_email').value.trim();
-    const telephone = document.getElementById('form_telephone').value.trim();
-    const gender = document.getElementById('form_gender').value;
-    const role = document.getElementById('form_role').value;
-    const userFormMsg = document.getElementById('userFormMsg');
-
-    if (!id && password.length < 4) {
-        userFormMsg.textContent = 'Password must be at least 4 characters long for new users.';
-        return;
-    }
-    
-    const isDuplicate = USERS.some(u => 
-        u.username === username && u.id !== parseInt(id)
-    );
-    if (isDuplicate) {
-        userFormMsg.textContent = 'Error: Username already exists.';
-        return;
-    }
-
-    const newUserData = {
-        username,
-        role,
-        sdmsCode,
-        idNumber,
-        fullName,
-        email,
-        gender,
-        telephone
-    };
-
-    if (id) {
-        const index = USERS.findIndex(u => u.id === parseInt(id));
-        if (index !== -1) {
-            Object.assign(USERS[index], newUserData);
-            if (password) {
-                USERS[index].password = password;
-            }
-            alert(`User **${username}** updated successfully!`);
-        }
-    } else {
-        const newId = USERS.length > 0 ? Math.max(...USERS.map(u => u.id || 0)) + 1 : 1;
-        newUserData.id = newId;
-        newUserData.password = password; 
-        USERS.push(newUserData);
-        alert(`User **${username}** added successfully!`);
-    }
-
-    saveData();
-    displayUsers();
-    closeUserForm();
-}
-
-function deleteUser(userId) {
-    const user = USERS.find(u => u.id === userId);
-    if (!user) return;
-    
-    if (user.role === 'admin' && USERS.filter(u => u.role === 'admin').length === 1) {
-         alert("Cannot delete the only remaining admin user.");
-         return;
-    }
-
-    if (confirm(`Are you sure you want to delete staff user: ${user.username} (${user.fullName})?`)) {
-        USERS = USERS.filter(u => u.id !== userId);
-        
-        for (const [classKey, teacherUsername] of Object.entries(teacherAssignments)) {
-            if (teacherUsername === user.username) {
-                delete teacherAssignments[classKey];
-            }
-        }
-        
-        saveData();
-        displayUsers();
-        alert(`User ${user.username} deleted.`);
-    }
-}
-
-
-// ** 8. SUBJECT MANAGEMENT **
-function addSubject(){
-    const newSubject = document.getElementById('newSubjectName').value.trim();
-    if (newSubject && !subjects.includes(newSubject)) {
-        subjects.push(newSubject);
-        document.getElementById('newSubjectName').value = '';
-        saveData();
-        displaySubjects();
-        alert(`Subject ${newSubject} added.`);
-    }
-}
-function bulkAddSubjects(){
-    const input = document.getElementById('bulkSubjectsInput').value;
-    const newItems = input.split(/[\n,]+/).map(s => s.trim()).filter(s => s && !subjects.includes(s));
-    
-    if (newItems.length > 0) {
-        subjects.push(...newItems);
-        saveData();
-        displaySubjects();
-        document.getElementById('bulkSubjectsInput').value = subjects.join('\n'); // Update textarea to show all
-        alert(`${newItems.length} new subjects added.`);
-    } else {
-        alert("No new unique subjects to add.");
-    }
-}
-function deleteSubject(subjectName){
-     if (confirm(`Are you sure you want to delete subject ${subjectName}? This will affect rules and marks.`)) {
-        subjects = subjects.filter(s => s !== subjectName);
-        subjectRules = subjectRules.filter(r => r.subject !== subjectName);
-        timetableSlots = timetableSlots.filter(s => s.subject !== subjectName);
-        marks = marks.filter(m => m.subject !== subjectName);
-        saveData();
-        displaySubjects();
-        alert(`Subject ${subjectName} deleted.`);
-    }
-}
-function displaySubjects(){
-    const list = document.getElementById('subjectList');
-    let html = '<h4>Active Subjects:</h4>';
-    if(subjects.length === 0) {
-        html += '<p>No subjects registered yet.</p>';
-    } else {
-        html += '<table><thead><tr><th>Subject Name</th><th>Actions</th></tr></thead><tbody>';
-        subjects.forEach(s => {
-            html += `
-                <tr>
-                    <td>**${s}**</td>
-                    <td>
-                        <button onclick="deleteSubject('${s}')" class="delete-btn"><i class="fas fa-trash"></i> Delete</button>
-                    </td>
-                </tr>
-            `;
-        });
-        html += '</tbody></table>';
-    }
-    list.innerHTML = html;
-}
-
-// ** 9. MARKS MANAGER **
-function showMarksTab(){
-    const entry = document.getElementById('marksEntry');
-    // Placeholder for a detailed marks entry interface.
-    entry.innerHTML = `
-        <p>Use the controls below to filter and input marks.</p>
-        <div class="flex-row">
-            <select id="marks_class" onchange="renderMarkForm()"><option value="">Select Class</option>${classes.map(c=>`<option value="${c}">${c}</option>`).join('')}</select>
-            <select id="marks_subject" onchange="renderMarkForm()"><option value="">Select Subject</option>${subjects.map(s=>`<option value="${s}">${s}</option>`).join('')}</select>
-            <input type="text" id="marks_exam" placeholder="Exam Name (e.g., Mid-Term 1)" style="max-width:200px;">
+                <tbody id="classList"></tbody>
+            </table>
+            <div style="margin-top:20px; padding:15px; background:#e8f4fd; border-radius:8px; text-align:center; font-size:16px;">
+                <strong>Total Classes: <span id="totalClassesCount" style="color:var(--primary); font-size:22px;">0</span></strong>
+            </div>
         </div>
-        <div id="markInputTable">
-            <p style="margin-top: 15px;">Select Class and Subject to load mark entry form.</p>
+        <div id="feesTab" class="tab card">
+            <h2>Fees Structure - Term <span id="feesTermDisplay">1</span></h2>
+            <button class="btn-success" onclick="showFeesModal()">Edit Fees</button>
+            <div class="fees-grid">
+                <div class="fees-group"><h4>Nursery</h4><p>RWF <strong id="nurseryTotal">35,000</strong></p></div>
+                <div class="fees-group"><h4>P1-P3</h4><p>RWF <strong id="lowerTotal">45,000</strong></p></div>
+                <div class="fees-group"><h4>P4-P6</h4><p>RWF <strong id="upperTotal">55,000</strong></p></div>
+                <div class="fees-group"><h4>S1-S3</h4><p>RWF <strong id="ordinaryTotal">80,000</strong></p></div>
+                <div class="fees-group"><h4>S4-S6</h4><p>RWF <strong id="advancedTotal">100,000</strong></p></div>
+            </div>
         </div>
-    `;
-}
-function renderMarkForm(){
-    const classVal = document.getElementById('marks_class').value;
-    const subjectVal = document.getElementById('marks_subject').value;
-    const tableDiv = document.getElementById('markInputTable');
-    
-    if (!classVal || !subjectVal) {
-        tableDiv.innerHTML = '<p style="margin-top: 15px;">Select Class and Subject to load mark entry form.</p>';
-        return;
-    }
-
-    const classLearners = learners.filter(l => l.class === classVal);
-    
-    let table = `
-        <form onsubmit="saveMarks(event)">
-        <input type="hidden" id="marks_class_val" value="${classVal}">
-        <input type="hidden" id="marks_subject_val" value="${subjectVal}">
-        <h5 style="margin-top: 10px;">Enter Marks for ${subjectVal} in ${classVal}</h5>
+        <div id="financeTab" class="tab card">
+            <h2>Finance Overview</h2>
+            <div class="big-stat big-balance">RWF <span id="totalCollected">0</span><div>Total Collected</div></div>
+            <div class="big-stat big-outstanding">RWF <span id="totalOutstanding">0</span><div>Outstanding Balance</div></div>
+            <div class="chart-container"><canvas id="feesChart"></canvas></div>
+        </div>
+        <div id="vrTab" class="tab card">
+            <h2>Virtual School Tour (360° VR</h2>
+            <p>Drag to explore • Mobile: tap VR icon</p>
+            <div class="vr-container">
+                <a-scene embedded>
+                    <a-sky color="#87CEEB"></a-sky>
+                    <a-plane position="0 0 -4" rotation="-90 0 0" width="80" height="80" color="#7BC8A4"></a-plane>
+                    <a-box position="-10 4 -20" depth="18" height="8" width="30" color="#D2691E"></a-box>
+                    <a-text value="YOUR SCHOOL" position="-10 7 -11" color="white" align="center" width="35"></a-text>
+                    <a-box position="15 3 -15" depth="12" height="6" width="18" color="#FFB74D"></a-box>
+                    <a-box position="15 3 -28" depth="12" height="6" width="18" color="#FFB74D"></a-box>
+                    <a-cylinder position="0 0.1 -35" radius="15" height="0.2" color="#8BC34A"></a-cylinder>
+                    <a-text value="Playground" position="0 1 -35" color="#333" align="center"></a-text>
+                    <a-camera position="0 1.6 5"></a-camera>
+                </a-scene>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modals -->
+<div id="learnersListModal" class="modal hidden">
+    <div class="modal-content">
+        <h3 id="learnersListTitle">Learners Report</h3>
+        <p id="learnersListSchool"></p>
+        <div style="margin:20px 0;">
+            <button class="btn-primary no-print" onclick="window.print()">Print</button>
+            <button class="btn-primary no-print" onclick="exportToPDF()">Download PDF</button>
+            <button class="btn-primary no-print" onclick="exportToExcel()">Download Excel</button>
+            <button class="btn-primary no-print" onclick="exportCurrentList()">Export CSV</button>
+            <button class="btn-danger no-print" onclick="closeModal('learnersListModal')">Close</button>
+        </div>
         <table>
-            <thead><tr><th>ID</th><th>Name</th><th>Mark (0-100)</th><th>Comment</th></tr></thead>
-            <tbody>
-    `;
-
-    classLearners.forEach(l => {
-        const existingMark = marks.find(m => m.id === l.id && m.class === classVal && m.subject === subjectVal);
-        const markValue = existingMark ? existingMark.mark : '';
-        const commentValue = existingMark ? existingMark.comment : '';
-        
-        table += `
-            <tr>
-                <td>${l.id}</td>
-                <td>${l.name}</td>
-                <td><input type="number" name="mark_${l.id}" value="${markValue}" min="0" max="100" style="max-width:100px;"></td>
-                <td><input type="text" name="comment_${l.id}" value="${commentValue}" style="max-width:250px;"></td>
-            </tr>
-        `;
-    });
-
-    table += '</tbody></table><button type="submit" style="background: #28a745; color:white;"><i class="fas fa-save"></i> Save Marks</button></form>';
-    tableDiv.innerHTML = table;
-}
-function saveMarks(e) {
-    e.preventDefault();
-    const classVal = document.getElementById('marks_class_val').value;
-    const subjectVal = document.getElementById('marks_subject_val').value;
-    const examName = document.getElementById('marks_exam').value.trim();
-    
-    if (!examName) {
-        alert("Please enter a name for the exam/assessment.");
+            <thead><tr><th>No</th><th>Code</th><th>Name</th><th>Father</th><th>Mother</th><th>Class</th><th>Gender</th><th>Due</th><th>Paid</th><th>Balance</th><th>Status</th></tr></thead>
+            <tbody id="learnersListTable"></tbody>
+        </table>
+        <p style="margin-top:20px; text-align:right;">Total: <strong id="totalLearnersCount">0</strong> learners</p>
+    </div>
+</div>
+<div id="paymentHistoryModal" class="modal hidden">
+    <div class="modal-content">
+        <h3>Payment History - <span id="phName"></span> (<span id="phRegNo"></span>)</h3>
+        <table>
+            <thead><tr><th>Date</th><th>Amount</th><th>Reason</th></tr></thead>
+            <tbody id="paymentHistoryTable"></tbody>
+        </table>
+        <button class="btn-danger" style="margin-top:20px;" onclick="closeModal('paymentHistoryModal')">Close</button>
+    </div>
+</div>
+<div id="addLearnerModal" class="modal hidden">
+    <div class="modal-content">
+        <h3 id="learnerModalTitle">Add Learner</h3>
+        <form id="addLearnerForm">
+            <label>SDMS Code</label><input type="text" id="learnerRegNo" required>
+            <label>Name</label><input type="text" id="learnerName" required>
+            <label>Father's Name</label><input type="text" id="learnerFatherName">
+            <label>Mother's Name</label><input type="text" id="learnerMotherName">
+            <label>Gender</label>
+            <select id="learnerGender" required>
+                <option value="">Select</option>
+                <option value="M">Male</option>
+                <option value="F">Female</option>
+            </select>
+            <label>Class</label><select id="learnerClass" required><option value="">Select</option></select>
+            <div style="text-align:right; margin-top:20px;">
+                <button type="submit" class="btn-success">Save</button>
+                <button type="button" class="btn-danger" onclick="closeModal('addLearnerModal')">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+<div id="addStaffModal" class="modal hidden">
+    <div class="modal-content">
+        <h3>Add Staff</h3>
+        <form id="addStaffForm">
+            <label>Code</label><input type="text" id="staffRegNo" required>
+            <label>Name</label><input type="text" id="staffName" required>
+            <label>Gender</label>
+            <select id="staffGender" required>
+                <option value="">Select</option>
+                <option value="M">Male</option>
+                <option value="F">Female</option>
+            </select>
+            <label>Role</label><input type="text" id="staffRole" placeholder="e.g. Teacher, Head Teacher" required>
+            <div style="text-align:right; margin-top:20px;">
+                <button type="submit" class="btn-success">Save</button>
+                <button type="button" class="btn-danger" onclick="closeModal('addStaffModal')">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+<div id="addSchoolModal" class="modal hidden">
+    <div class="modal-content">
+        <h3>Add New School</h3>
+        <form id="addSchoolForm">
+            <label>School Name</label><input type="text" id="schoolNameInput" required>
+            <label>SDMS School Code</label><input type="text" id="schoolCodeInput" placeholder="e.g. GS001" required style="text-transform:uppercase;">
+            <label>Province</label><input type="text" id="schoolProvinceInput" required>
+            <label>District</label><input type="text" id="schoolDistrictInput" required>
+            <label>Sector</label><input type="text" id="schoolSectorInput" required>
+            <label>Head Teacher</label>
+            <select id="schoolHeadTeacherInput">
+                <option value="">None</option>
+            </select>
+            <div style="text-align:right; margin-top:20px;">
+                <button type="submit" class="btn-success">Save</button>
+                <button type="button" class="btn-danger" onclick="closeModal('addSchoolModal')">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+<div id="editSchoolModal" class="modal hidden">
+    <div class="modal-content">
+        <h3>Edit School Details</h3>
+        <form id="editSchoolForm">
+            <label>School Name</label><input type="text" id="editSchoolName" required>
+            <label>SDMS School Code</label><input type="text" id="editSchoolCode" required style="text-transform:uppercase;">
+            <label>Province</label><input type="text" id="editProvince" required>
+            <label>District</label><input type="text" id="editDistrict" required>
+            <label>Sector</label><input type="text" id="editSector" required>
+            <label>Head Teacher</label>
+            <select id="editHeadTeacher"></select>
+            <div style="text-align:right; margin-top:20px;">
+                <button type="submit" class="btn-success">Update</button>
+                <button type="button" class="btn-danger" onclick="closeModal('editSchoolModal')">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+<div id="feesModal" class="modal hidden">
+    <div class="modal-content">
+        <h3>Edit Fees Structure - Term <span id="feesModalTerm">1</span></h3>
+        <div class="fees-grid">
+            <div class="fees-group"><h4>Nursery</h4><label>School Fees</label><input type="number" id="nursery_school" value="35000"></div>
+            <div class="fees-group"><h4>P1-P3</h4><label>School Fees</label><input type="number" id="lower_school" value="45000"></div>
+            <div class="fees-group"><h4>P4-P6</h4><label>School Fees</label><input type="number" id="upper_school" value="55000"></div>
+            <div class="fees-group"><h4>S1-S3</h4><label>School Fees</label><input type="number" id="ordinary_school" value="80000"></div>
+            <div class="fees-group"><h4>S4-S6</h4><label>School Fees</label><input type="number" id="advanced_school" value="100000"></div>
+        </div>
+        <div style="text-align:right;">
+            <button class="btn-success" onclick="saveFeesStructure()">Save</button>
+            <button class="btn-danger" onclick="closeModal('feesModal')">Cancel</button>
+        </div>
+    </div>
+</div>
+<script>
+// ======================== DATA & STATE ========================
+let currentSchoolId = localStorage.getItem('usms_current_school') || null;
+let currentRole = '';
+let schools = JSON.parse(localStorage.getItem('usms_schools') || JSON.stringify([
+    { id: "demo2025", name: "GS Demo Rwanda 2025", sdmsCode: "GSDEM025", province: "Kigali", district: "Gasabo", sector: "Remera", headTeacherRegNo: "" }
+]));
+const defaultFees = {
+    1: { nursery: {school:35000}, lower: {school:45000}, upper: {school:55000}, ordinary: {school:80000}, advanced: {school:100000} },
+    2: { nursery: {school:35000}, lower: {school:45000}, upper: {school:55000}, ordinary: {school:80000}, advanced: {school:100000} },
+    3: { nursery: {school:35000}, lower: {school:45000}, upper: {school:55000}, ordinary: {school:80000}, advanced: {school:100000} }
+};
+let currentYear = '2025-2026';
+let currentTerm = 1;
+let learners = [], staff = [], payments = [], classes = [], feesStructure = defaultFees;
+let currentChart = null;
+let currentListFilter = 'all';
+let currentListClass = '';
+// ======================== AUTH & INITIALIZATION ========================
+function login() {
+    const username = document.getElementById('username').value.trim().toLowerCase();
+    const password = document.getElementById('password').value;
+    if (password !== '1234') {
+        alert('Invalid password.');
         return;
     }
-
-    const classLearners = learners.filter(l => l.class === classVal);
-    const date = new Date().toISOString().split('T')[0];
-
-    classLearners.forEach(l => {
-        const markInput = document.querySelector(`input[name="mark_${l.id}"]`);
-        const commentInput = document.querySelector(`input[name="comment_${l.id}"]`);
-        const mark = markInput ? parseInt(markInput.value) : null;
-        const comment = commentInput ? commentInput.value : '';
-
-        if (mark !== null && !isNaN(mark) && mark >= 0 && mark <= 100) {
-            // Find existing entry and update or add new
-            const existingIndex = marks.findIndex(m => m.id === l.id && m.class === classVal && m.subject === subjectVal && m.exam === examName);
-            
-            const markEntry = {
-                id: l.id,
-                name: l.name,
-                class: classVal,
-                subject: subjectVal,
-                exam: examName,
-                mark: mark,
-                comment: comment,
-                date: date
-            };
-            
-            if (existingIndex !== -1) {
-                marks[existingIndex] = markEntry;
-            } else {
-                marks.push(markEntry);
+    if (username === 'admin' || username === 'finance') {
+        currentRole = username;
+        document.getElementById('currentUser').textContent = username.charAt(0).toUpperCase() + username.slice(1);
+    } else {
+        // Assume username is regNo for head teacher
+        let found = false;
+        let assignedSchoolId = null;
+        schools.forEach(s => {
+            const tempId = currentSchoolId;
+            currentSchoolId = s.id;
+            loadSchoolData();
+            const ht = staff.find(st => st.regNo.toLowerCase() === username && st.role === 'Head Teacher');
+            if (ht) {
+                found = true;
+                assignedSchoolId = s.id;
+                currentRole = 'headteacher';
+                document.getElementById('currentUser').textContent = ht.name;
             }
-        }
-    });
-
-    saveData();
-    alert(`Marks for ${subjectVal} in ${classVal} saved successfully for exam: ${examName}.`);
-}
-
-
-// ** 10. FINANCE MANAGER **
-
-const RWF = (amount) => `RWF ${new Big(amount || 0).toFixed(2)}`;
-let budgetChartInstance = null;
-
-function initFinance(){
-    loadFinanceData(false, true); // Load data and update metrics on tab open
-    document.getElementById('transactionForm').onsubmit = handleTransactionSubmit;
-    document.getElementById('feePaymentForm').onsubmit = handleFeePaymentSubmit;
-    document.getElementById('sdmsFeePaymentForm').onsubmit = handleSDMSPayment;
-    document.getElementById('budgetForm').onsubmit = handleBudgetSubmit;
-    
-    // Set default filter dates to cover the year
-    const now = new Date();
-    document.getElementById('filterStartDate').value = `${now.getFullYear()}-01-01`;
-    document.getElementById('filterEndDate').value = new Date().toISOString().split('T')[0];
-    
-    displayBudgets();
-}
-
-function calculateFinanceMetrics(transactions) {
-    let totalIncome = new Big(0);
-    let totalExpense = new Big(0);
-
-    transactions.forEach(t => {
-        const amount = new Big(t.amount);
-        if (t.type === 'income') {
-            totalIncome = totalIncome.plus(amount);
-        } else if (t.type === 'expense') {
-            totalExpense = totalExpense.plus(amount);
-        }
-    });
-
-    const balance = totalIncome.minus(totalExpense);
-    return {
-        totalIncome: totalIncome.toNumber(),
-        totalExpense: totalExpense.toNumber(),
-        balance: balance.toNumber()
-    };
-}
-
-function loadFinanceData(applyFilters=false, updateMetrics=false){
-    let data = financeTransactions;
-    
-    if(applyFilters){
-        const start = document.getElementById('filterStartDate').value;
-        const end = document.getElementById('filterEndDate').value;
-        const type = document.getElementById('filterType').value;
-        const category = document.getElementById('filterCategory').value;
-        const search = document.getElementById('filterSearch').value.toLowerCase();
-        
-        data = data.filter(t => {
-            const dateCheck = (!start || t.date >= start) && (!end || t.date <= end);
-            const typeCheck = type === 'all' || t.type === type;
-            const categoryCheck = category === 'all' || t.category === category;
-            const searchCheck = !search || t.description.toLowerCase().includes(search);
-            return dateCheck && typeCheck && categoryCheck && searchCheck;
+            currentSchoolId = tempId;
         });
-    }
-
-    filteredFinanceData = data;
-    
-    const metrics = calculateFinanceMetrics(filteredFinanceData);
-    
-    updateBalance(metrics.balance);
-    updateStats(metrics);
-    displayTransactions(filteredFinanceData);
-    updateChart(filteredFinanceData);
-    
-    if (updateMetrics) {
-        updateBudgetPerformance(financeTransactions);
-    }
-}
-
-function updateBudgetPerformance(allTransactions) {
-    const dashAlert = document.getElementById('dashBudgetAlert');
-    const details = document.getElementById('budgetStatusDetails');
-    const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM
-
-    const currentMonthBudgets = budgets.filter(b => b.month === currentMonth);
-    const monthExpenses = allTransactions.filter(t => t.type === 'expense' && t.date.startsWith(currentMonth));
-    
-    if (currentMonthBudgets.length === 0) {
-        dashAlert.className = 'budget-alert-card';
-        details.innerHTML = 'No budget set for the current month.';
-        return;
-    }
-
-    let performanceHTML = '<ul class="budget-performance-list">';
-    let overallOverspent = false;
-
-    currentMonthBudgets.forEach(b => {
-        const spent = monthExpenses.filter(t => t.category === b.category)
-                                    .reduce((sum, t) => sum.plus(new Big(t.amount)), new Big(0));
-        const limit = new Big(b.amount);
-        const remaining = limit.minus(spent);
-        const overspent = spent.gt(limit);
-
-        if (overspent) { overallOverspent = true; }
-
-        performanceHTML += `
-            <li>
-                **${b.category.toUpperCase()}**: ${RWF(spent.toNumber())} / ${RWF(limit.toNumber())}
-                <span class="${overspent ? 'status-over' : 'status-under'}">
-                    ${overspent ? `(OVER: ${RWF(spent.minus(limit).toNumber())})` : `(Remaining: ${RWF(remaining.toNumber())})`}
-                </span>
-            </li>
-        `;
-    });
-
-    performanceHTML += '</ul>';
-    
-    dashAlert.className = overallOverspent ? 'budget-alert-card overspent' : 'budget-alert-card';
-    details.innerHTML = performanceHTML;
-}
-
-function handleBudgetSubmit(e) {
-    e.preventDefault();
-    const category = document.getElementById('budgetCategory').value;
-    const amount = new Big(document.getElementById('budgetAmount').value);
-    const month = document.getElementById('budgetMonth').value;
-
-    if (category && amount.gt(0) && month) {
-        const existingIndex = budgets.findIndex(b => b.category === category && b.month === month);
-        const newBudget = { category, amount: amount.toNumber(), month };
-
-        if (existingIndex !== -1) {
-            newBudget.id = budgets[existingIndex].id;
-            budgets[existingIndex] = newBudget;
-            alert(`Budget for ${category} in ${month} updated to ${RWF(amount.toNumber())}.`);
-        } else {
-            newBudget.id = budgets.length > 0 ? Math.max(...budgets.map(b => b.id)) + 1 : 1;
-            budgets.push(newBudget);
-            alert(`New budget for ${category} set for ${month} at ${RWF(amount.toNumber())}.`);
+        if (!found) {
+            alert('Invalid credentials. For head teachers, use your staff code.');
+            return;
         }
-        
-        saveData();
-        displayBudgets();
-        updateBudgetPerformance(financeTransactions); 
-        document.getElementById('budgetForm').reset();
+        currentSchoolId = assignedSchoolId;
+    }
+    document.getElementById('loginScreen').classList.add('hidden');
+    document.getElementById('app').classList.remove('hidden');
+    populateSchoolSelector();
+    switchSchool(currentSchoolId || schools[0].id);
+    if (currentRole === 'headteacher') {
+        document.getElementById('schoolSelector').style.display = 'none';
+        document.getElementById('addSchoolBtn').style.display = 'none';
+        document.getElementById('editSchoolBtn').style.display = 'inline-block'; // Allow editing their own school
     } else {
-        alert("Please fill out all budget fields with valid data.");
+        document.getElementById('schoolSelector').style.display = 'inline-block';
+        document.getElementById('addSchoolBtn').style.display = 'inline-block';
+        document.getElementById('editSchoolBtn').style.display = 'inline-block';
     }
+    setTimeout(() => document.getElementById('loadingScreen').classList.add('hidden'), 800);
 }
-
-function displayBudgets() {
-    const list = document.getElementById('currentBudgetsList');
-    list.innerHTML = '<h4>Active Monthly Budgets:</h4>';
-    if (budgets.length === 0) {
-        list.innerHTML += '<p>No budgets currently set.</p>';
-        return;
-    }
-    
-    budgets.sort((a, b) => new Date(b.month) - new Date(a.month)); // Sort by month desc
-
-    let tableHTML = '<table><thead><tr><th>Month</th><th>Category</th><th>Amount (RWF)</th><th>Actions</th></tr></thead><tbody>';
-    budgets.forEach(b => {
-        tableHTML += `
-            <tr>
-                <td>${b.month}</td>
-                <td>${b.category.toUpperCase()}</td>
-                <td>${RWF(b.amount)}</td>
-                <td><button onclick="deleteBudget(${b.id})" class="delete-btn"><i class="fas fa-trash"></i> Delete</button></td>
-            </tr>
-        `;
-    });
-    tableHTML += '</tbody></table>';
-    list.innerHTML += tableHTML;
+function logout() {
+    currentRole = '';
+    document.getElementById('app').classList.add('hidden');
+    document.getElementById('loginScreen').classList.remove('hidden');
+    document.getElementById('username').value = '';
+    document.getElementById('password').value = '';
 }
-
-function deleteBudget(id) {
-    if (confirm("Are you sure you want to delete this budget?")) {
-        budgets = budgets.filter(b => b.id !== id);
-        saveData();
-        displayBudgets();
-        updateBudgetPerformance(financeTransactions); 
-        alert("Budget deleted.");
-    }
+// ======================== SCHOOL MANAGEMENT ========================
+function getCurrentSchool() {
+    return schools.find(s => s.id === currentSchoolId);
 }
-
-
-function addTransaction(amount, type, category, date, description) {
-    const newId = financeTransactions.length > 0 ? Math.max(...financeTransactions.map(t => t.id)) + 1 : 1;
-    const newTransaction = { id: newId, amount: new Big(amount).toNumber(), type, category, date, description };
-    financeTransactions.push(newTransaction);
-    saveData();
-    return true;
+function getKey(key) {
+    return currentSchoolId ? `usms_${currentSchoolId}_${currentYear}_${key}` : null;
 }
-
-function handleTransactionSubmit(e) {
-    e.preventDefault();
-    const amount = document.getElementById('amount').value;
-    const type = document.getElementById('type').value;
-    const category = document.getElementById('category').value;
-    const date = document.getElementById('date').value;
-    const description = document.getElementById('description').value;
-    
-    if (addTransaction(amount, type, category, date, description)) {
-        document.getElementById('transactionForm').reset();
-        loadFinanceData(true, true);
-        alert('Transaction added successfully!');
-    } else {
-        alert('Error adding transaction. Check inputs.');
-    }
+function loadSchoolData() {
+    if (!currentSchoolId) return;
+    learners = JSON.parse(localStorage.getItem(getKey('learners')) || '[]');
+    staff = JSON.parse(localStorage.getItem(getKey('staff')) || '[]');
+    payments = JSON.parse(localStorage.getItem(getKey('payments')) || '[]');
+    classes = JSON.parse(localStorage.getItem(getKey('classes')) || JSON.stringify(["Nursery","P1","P2","P3","P4","P5","P6","S1","S2","S3","S4","S5","S6"]));
+    feesStructure = JSON.parse(localStorage.getItem(getKey('fees')) || JSON.stringify(defaultFees));
+    currentTerm = parseInt(localStorage.getItem(getKey('term')) || '1');
 }
-
-function deleteTransaction(id) {
-    if(confirm('Are you sure you want to delete this transaction?')) {
-        financeTransactions = financeTransactions.filter(t => t.id !== id);
-        saveData();
-        loadFinanceData(true, true);
-        alert('Transaction deleted.');
-    }
+function saveSchoolData() {
+    if (!currentSchoolId) return;
+    localStorage.setItem(getKey('learners'), JSON.stringify(learners));
+    localStorage.setItem(getKey('staff'), JSON.stringify(staff));
+    localStorage.setItem(getKey('payments'), JSON.stringify(payments));
+    localStorage.setItem(getKey('classes'), JSON.stringify(classes));
+    localStorage.setItem(getKey('fees'), JSON.stringify(feesStructure));
+    localStorage.setItem(getKey('term'), currentTerm.toString());
 }
-
-function handleFeePaymentSubmit(e) {
-    e.preventDefault();
-    const studentId = document.getElementById('studentId').value.trim().toUpperCase();
-    const amount = document.getElementById('feeAmount').value;
-    const parentPhone = document.getElementById('parentPhone').value.trim();
-    const statusDiv = document.getElementById('paymentStatus');
-    statusDiv.innerHTML = '';
-    
-    const learnerIndex = learners.findIndex(l => l.id === studentId);
-
-    if (learnerIndex === -1) {
-        statusDiv.innerHTML = `<div class="error-msg">Error: Student ID ${studentId} not found.</div>`;
-        return;
-    }
-
-    // 1. Simulate Bank Transfer Success
-    const description = `Fee Payment for ${studentId} (Bank Transfer)`;
-    const date = new Date().toISOString().split('T')[0];
-    
-    if (addTransaction(amount, 'income', 'fees', date, description)) {
-        // 2. Update Learner Fee Status (Placeholder logic)
-        learners[learnerIndex].feeStatus = 'Paid'; // Simplified: assume full payment
-        
-        // 3. Simulate SMS Confirmation (Rwanda specific format)
-        const smsMessage = `USMS: RWF ${amount} paid successfully for Student ${studentId}. Your balance is updated. Ref: TR${financeTransactions.length}.`;
-        
-        statusDiv.innerHTML = `<div class="success-msg">
-            Payment successful. RWF ${amount} recorded for ${studentId}.<br>
-            SMS simulated to ${parentPhone}: "${smsMessage}"
-        </div>`;
-        
-        saveData();
-        loadFinanceData(true, true);
-        document.getElementById('feePaymentForm').reset();
-    }
-}
-
-function handleSDMSPayment(e) {
-    e.preventDefault();
-    const sdmsCode = document.getElementById('sdmsCode').value.trim().toUpperCase();
-    const amount = document.getElementById('sdmsAmount').value;
-    const paymentMethod = document.getElementById('paymentMethod').value;
-    const payerReference = document.getElementById('payerReference').value.trim();
-    const statusDiv = document.getElementById('sdmsPaymentStatus');
-    statusDiv.innerHTML = '';
-
-    // SDMS Code validation (e.g., S001-2025)
-    const [studentId, year] = sdmsCode.split('-');
-    const learnerIndex = learners.findIndex(l => l.id === studentId);
-
-    if (learnerIndex === -1 || !year || year.length !== 4) {
-        statusDiv.innerHTML = `<div class="error-msg">Error: Invalid SDMS Code format or Student ID not found.</div>`;
-        return;
-    }
-
-    // 1. Simulate SDMS/Mobile Payment
-    const description = `Fee Payment for ${studentId} (SDMS Code via ${paymentMethod})`;
-    const date = new Date().toISOString().split('T')[0];
-    
-    if (addTransaction(amount, 'income', 'fees', date, description)) {
-        // 2. Update Learner Fee Status (Placeholder logic)
-        learners[learnerIndex].feeStatus = 'Paid'; // Simplified
-        
-        // 3. Simulate USSD/App response
-        const confirmMessage = `SUCCESS: RWF ${amount} received for SDMS Code ${sdmsCode} via ${paymentMethod}. Ref: TR${financeTransactions.length}. Thank you!`;
-        
-        statusDiv.innerHTML = `<div class="success-msg">
-            SDMS Payment successful. RWF ${amount} recorded.<br>
-            System notification: "${confirmMessage}"
-        </div>`;
-        
-        saveData();
-        loadFinanceData(true, true);
-        document.getElementById('sdmsFeePaymentForm').reset();
-    }
-}
-
-
-function displayTransactions(transactions) {
-    const tbody = document.getElementById('transactionsTable').getElementsByTagName('tbody')[0];
-    tbody.innerHTML = '';
-
-    transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-    transactions.forEach(t => {
-        const row = tbody.insertRow();
-        const typeStyle = t.type === 'income' ? 'color:green; font-weight:bold;' : 'color:red; font-weight:bold;';
-        
-        row.insertCell().textContent = t.date;
-        row.insertCell().innerHTML = `<span style="${typeStyle}">${t.type.toUpperCase()}</span>`;
-        row.insertCell().textContent = t.category;
-        row.insertCell().textContent = RWF(t.amount);
-        row.insertCell().textContent = t.description;
-        row.insertCell().innerHTML = `<button onclick="deleteTransaction(${t.id})" class="delete-btn">X</button>`;
+function populateSchoolSelector() {
+    const select = document.getElementById('schoolSelector');
+    select.innerHTML = '<option value="">Select School</option>';
+    schools.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s.id;
+        opt.textContent = s.name;
+        if (s.id === currentSchoolId) opt.selected = true;
+        select.appendChild(opt);
     });
 }
-
-function updateBalance(balance) {
-    const balanceDiv = document.getElementById('balance');
-    balanceDiv.textContent = RWF(balance);
-    balanceDiv.style.color = balance >= 0 ? '#27ae60' : '#e74c3c';
-}
-
-function updateStats(metrics) {
-    const statsList = document.getElementById('stats');
-    statsList.innerHTML = `
-        <li>Total Income: **${RWF(metrics.totalIncome)}**</li>
-        <li>Total Expense: **${RWF(metrics.totalExpense)}**</li>
-        <li>Net Flow: **${RWF(metrics.totalIncome - metrics.totalExpense)}**</li>
-        <li>Transactions Count: **${filteredFinanceData.length}**</li>
-    `;
-}
-
-function updateChart(transactions) {
-    if (budgetChartInstance) {
-        budgetChartInstance.destroy();
+function switchSchool(id) {
+    if (currentRole === 'headteacher' && id !== currentSchoolId) {
+        alert('You can only access your assigned school.');
+        return;
     }
-
-    const categoryData = {};
-    transactions.forEach(t => {
-        categoryData[t.category] = new Big(categoryData[t.category] || 0).plus(new Big(t.amount));
+    if (!id) return;
+    currentSchoolId = id;
+    localStorage.setItem('usms_current_school', id);
+    const school = getCurrentSchool();
+    document.getElementById('schoolName').textContent = school.name;
+    document.getElementById('schoolCode').textContent = school.sdmsCode ? `SDMS Code: ${school.sdmsCode}` : '';
+    const ht = staff.find(s => s.regNo === school.headTeacherRegNo);
+    document.getElementById('headTeacher').textContent = ht ? `Head Teacher: ${ht.name}` : '';
+    document.getElementById('schoolLocation').textContent = `${school.province} • ${school.district} • ${school.sector}`;
+    document.getElementById('editSchoolBtn').style.display = 'inline-block';
+    loadSchoolData();
+    updateDisplays();
+    renderAll();
+    populateHeadTeacherOptions('editHeadTeacher');
+    populateHeadTeacherOptions('schoolHeadTeacherInput');
+}
+function showAddSchoolModal() {
+    if (currentRole === 'headteacher') {
+        alert('You cannot add schools.');
+        return;
+    }
+    document.getElementById('addSchoolForm').reset();
+    document.getElementById('schoolHeadTeacherInput').innerHTML = '<option value="">None</option>'; // Since new school, no staff yet
+    document.getElementById('addSchoolModal').classList.remove('hidden');
+}
+function showEditSchoolModal() {
+    const school = getCurrentSchool();
+    if (!school) return;
+    document.getElementById('editSchoolName').value = school.name;
+    document.getElementById('editSchoolCode').value = school.sdmsCode || '';
+    document.getElementById('editProvince').value = school.province;
+    document.getElementById('editDistrict').value = school.district;
+    document.getElementById('editSector').value = school.sector;
+    populateHeadTeacherOptions('editHeadTeacher');
+    document.getElementById('editHeadTeacher').value = school.headTeacherRegNo || '';
+    document.getElementById('editSchoolModal').classList.remove('hidden');
+}
+document.getElementById('addSchoolForm').onsubmit = function(e) {
+    e.preventDefault();
+    const name = document.getElementById('schoolNameInput').value.trim();
+    const sdmsCode = document.getElementById('schoolCodeInput').value.trim().toUpperCase();
+    const province = document.getElementById('schoolProvinceInput').value.trim();
+    const district = document.getElementById('schoolDistrictInput').value.trim();
+    const sector = document.getElementById('schoolSectorInput').value.trim();
+    const headTeacherRegNo = document.getElementById('schoolHeadTeacherInput').value || '';
+    if (!name || !sdmsCode || !province || !district || !sector) return alert('All fields except Head Teacher are required');
+    const id = name.toLowerCase().replace(/[^a-z0-9]/g, '') + '_' + Date.now();
+    schools.push({id, name, sdmsCode, province, district, sector, headTeacherRegNo});
+    localStorage.setItem('usms_schools', JSON.stringify(schools));
+    currentSchoolId = id;
+    localStorage.setItem('usms_current_school', id);
+    populateSchoolSelector();
+    closeModal('addSchoolModal');
+    switchSchool(id);
+};
+document.getElementById('editSchoolForm').onsubmit = function(e) {
+    e.preventDefault();
+    const school = getCurrentSchool();
+    if (!school) return;
+    school.name = document.getElementById('editSchoolName').value.trim();
+    school.sdmsCode = document.getElementById('editSchoolCode').value.trim().toUpperCase();
+    school.province = document.getElementById('editProvince').value.trim();
+    school.district = document.getElementById('editDistrict').value.trim();
+    school.sector = document.getElementById('editSector').value.trim();
+    school.headTeacherRegNo = document.getElementById('editHeadTeacher').value || '';
+    localStorage.setItem('usms_schools', JSON.stringify(schools));
+    closeModal('editSchoolModal');
+    switchSchool(currentSchoolId);
+};
+function populateHeadTeacherOptions(selectId) {
+    const select = document.getElementById(selectId);
+    select.innerHTML = '<option value="">None</option>';
+    staff.filter(s => s.role === 'Head Teacher').forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s.regNo;
+        opt.textContent = `${s.regNo} - ${s.name}`;
+        select.appendChild(opt);
     });
-
-    const labels = Object.keys(categoryData);
-    const data = labels.map(label => categoryData[label].toNumber());
-    const backgroundColors = labels.map((_, i) => ['#0074D9', '#2ecc71', '#f1c40f', '#e74c3c'][i % 4]);
-    
-    const ctx = document.getElementById('budgetChart').getContext('2d');
-    budgetChartInstance = new Chart(ctx, {
+}
+// ======================== The rest of the script remains the same as in the original, including UI navigation, fees, payments, rendering, CRUD for learners, staff, classes, etc. ========================
+function showTab(id) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('#navMenu button').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.querySelector(`#navMenu button[onclick="showTab('${id}')"]`).classList.add('active');
+    if (id === 'financeTab') renderFinanceChart();
+}
+function changeYear(y) {
+    currentYear = y;
+    loadSchoolData();
+    updateDisplays();
+    renderAll();
+}
+function changeTerm(t) {
+    currentTerm = parseInt(t);
+    saveSchoolData();
+    updateDisplays();
+    renderAll();
+}
+function updateDisplays() {
+    document.getElementById('dashYear').textContent = currentYear;
+    document.getElementById('yearSelector').value = currentYear;
+    document.getElementById('dashTerm').textContent = currentTerm;
+    document.getElementById('termSelector').value = currentTerm;
+    document.getElementById('feesTermDisplay').textContent = currentTerm;
+    document.getElementById('feesModalTerm').textContent = currentTerm;
+}
+function closeModal(id) {
+    document.getElementById(id).classList.add('hidden');
+}
+function getFeesDue(className) {
+    if (!className) return 0;
+    const lc = className.toLowerCase();
+    const f = feesStructure[currentTerm];
+    if (lc.includes('nursery')) return f.nursery.school || 35000;
+    if (/p[1-3]/i.test(lc)) return f.lower.school || 45000;
+    if (/p[4-6]/i.test(lc)) return f.upper.school || 55000;
+    if (/s[1-3]/i.test(lc)) return f.ordinary.school || 80000;
+    if (/s[4-6]/i.test(lc)) return f.advanced.school || 100000;
+    return 0;
+}
+function getLearnerPayments(regNo) {
+    return payments.filter(p => p.regNo === regNo && p.term === currentTerm);
+}
+function recordPayment(regNo, name) {
+    const amountStr = prompt(`Record payment for ${name} (${regNo})\nAmount (RWF):`);
+    if (!amountStr || isNaN(amountStr) || parseFloat(amountStr) <= 0) return;
+    const amount = parseInt(amountStr);
+    const reason = prompt('Reason:', 'School Fees') || 'School Fees';
+    payments.push({ regNo, name, amount, reason, term: currentTerm, date: new Date().toISOString().split('T')[0] });
+    saveSchoolData();
+    renderAll();
+    alert(`RWF ${amount.toLocaleString()} recorded!`);
+}
+function renderDashboard() {
+    const totalDue = learners.reduce((s, l) => s + getFeesDue(l.class), 0);
+    const totalPaid = payments.filter(p => p.term === currentTerm).reduce((s, p) => s + p.amount, 0);
+    const rate = totalDue > 0 ? Math.round((totalPaid / totalDue) * 100) : 0;
+    document.getElementById('dashTotalLearners').textContent = learners.length;
+    document.getElementById('dashBoys').textContent = learners.filter(l => l.gender === 'M').length;
+    document.getElementById('dashGirls').textContent = learners.filter(l => l.gender === 'F').length;
+    document.getElementById('dashTotalStaff').textContent = staff.length;
+    document.getElementById('dashFeesCollected').textContent = 'RWF ' + totalPaid.toLocaleString();
+    document.getElementById('dashFeesRate').textContent = rate + '%';
+    document.getElementById('dashTotalClasses').textContent = classes.length;
+}
+function renderFinanceChart() {
+    const totalDue = learners.reduce((s, l) => s + getFeesDue(l.class), 0);
+    const totalPaid = payments.filter(p => p.term === currentTerm).reduce((s, p) => s + p.amount, 0);
+    const outstanding = totalDue - totalPaid;
+    document.getElementById('totalCollected').textContent = totalPaid.toLocaleString();
+    document.getElementById('totalOutstanding').textContent = outstanding.toLocaleString();
+    if (currentChart) currentChart.destroy();
+    currentChart = new Chart(document.getElementById('feesChart'), {
         type: 'doughnut',
         data: {
-            labels: labels,
-            datasets: [{
-                data: data,
-                backgroundColor: backgroundColors,
-                hoverOffset: 4
-            }]
+            labels: ['Collected', 'Outstanding'],
+            datasets: [{ data: [totalPaid, outstanding || 1], backgroundColor: ['#27ae60', '#e74c3c'] }]
         },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { position: 'top' },
-                title: { display: true, text: 'Transaction Breakdown by Category (Filtered)' }
-            }
-        }
+        options: { responsive: true }
     });
 }
-
-function generateReport() {
-    alert("Generating Finance Report: (In a real system, this exports filtered data as a formatted PDF/CSV file.)");
+function renderFeesSummary() {
+    const f = feesStructure[currentTerm];
+    document.getElementById('nurseryTotal').textContent = (f.nursery.school || 35000).toLocaleString();
+    document.getElementById('lowerTotal').textContent = (f.lower.school || 45000).toLocaleString();
+    document.getElementById('upperTotal').textContent = (f.upper.school || 55000).toLocaleString();
+    document.getElementById('ordinaryTotal').textContent = (f.ordinary.school || 80000).toLocaleString();
+    document.getElementById('advancedTotal').textContent = (f.advanced.school || 100000).toLocaleString();
 }
-
-// ** 11. LESSON PLAN GENERATOR **
-
-function getLangString(key, lang) {
-    const map = {
-        English: {
-            TITLE: "LESSON PLAN", TEACHER: "Teacher", SUBJECT: "Subject", CLASS: "Class Level", DURATION: "Duration", DATE: "Date",
-            UNIT: "Unit Title", COMPETENCE: "Key Unit Competence", OBJECTIVE: "Instructional Objective", LOCATION: "Location",
-            MATERIALS: "Learning Materials", REFERENCES: "References", SECTION_TITLE: "Lesson Development",
-            STAGE: "Stage", TIME: "Time", TEACHER_ACTIVITY: "Teacher's Activity", LEARNER_ACTIVITY: "Learner's Activity",
-            ASSESSMENT: "Assessment/Evaluation", CONSOLIDATION: "Lesson Consolidation", FOLLOWUP: "Follow-up Activity"
-        },
-        French: {
-            TITLE: "FICHE DE LEÇON", TEACHER: "Enseignant", SUBJECT: "Branche", CLASS: "Classe", DURATION: "Durée", DATE: "Date",
-            UNIT: "Titre de l’unité", COMPETENCE: "Compétence clé de l’unité", OBJECTIVE: "Objectif Opérationnel", LOCATION: "Lieu",
-            MATERIALS: "Matériel didactique", REFERENCES: "Références", SECTION_TITLE: "Déroulement de la Leçon",
-            STAGE: "Étape", TIME: "Durée", TEACHER_ACTIVITY: "Activités de l'Enseignant", LEARNER_ACTIVITY: "Activités de l'Apprenant",
-            ASSESSMENT: "Évaluation", CONSOLIDATION: "Synthèse de la Leçon", FOLLOWUP: "Activités de suivi/Devoirs"
-        },
-        Kinyarwanda: {
-            TITLE: "IMBATA Y’ISOMO", TEACHER: "Umwarimu", SUBJECT: "Inyigisho", CLASS: "Umwaka", DURATION: "Igihe", DATE: "Itariki",
-            UNIT: "Umutwe w’Isomo", COMPETENCE: "Ubushobozi bw’ingenzi bw’umutwe", OBJECTIVE: "Intego y’Isomo", LOCATION: "Aho ryabereye",
-            MATERIALS: "Imfashanyigisho", REFERENCES: "Aho byavanywe", SECTION_TITLE: "Uko Isomo Ryateguwe",
-            STAGE: "Icyiciro", TIME: "Igihe", TEACHER_ACTIVITY: "Ibikorwa by'Umwarimu", LEARNER_ACTIVITY: "Ibikorwa by'Umunyeshuri",
-            ASSESSMENT: "Isuzumabushobozi", CONSOLIDATION: "Uko isomo ryasojwe", FOLLOWUP: "Igikorwa cyo gukurikirana"
-        },
-        Swahili: {
-            TITLE: "ANDALIO LA SOMO", TEACHER: "Mwalimu", SUBJECT: "Somo", CLASS: "Kidato", DURATION: "Muda", DATE: "Tarehe",
-            UNIT: "Mada Kuu", COMPETENCE: "Uwezo Muhimu wa Mada", OBJECTIVE: "Malengo ya Kufunza", LOCATION: "Mahali",
-            MATERIALS: "Vifaa vya Kufundishia", REFERENCES: "Vitabu vya Rejea", SECTION_TITLE: "Uendelezaji wa Somo",
-            STAGE: "Hatua", TIME: "Muda", TEACHER_ACTIVITY: "Shughuli za Mwalimu", LEARNER_ACTIVITY: "Shughuli za Mwanafunzi",
-            ASSESSMENT: "Tathmini", CONSOLIDATION: "Muhtasari wa Somo", FOLLOWUP: "Kazi ya Kufuatilia"
-        }
-    };
-    return map[lang] ? map[lang][key] : map.English[key];
-}
-
-function loadLessonPlanTab() {
-    const subjectSelect = document.getElementById('subject');
-    const classSelect = document.getElementById('classLevel');
-    
-    subjectSelect.innerHTML = subjects.map(s => `<option value="${s}">${s}</option>`).join('');
-    classSelect.innerHTML = classes.map(c => `<option value="${c}">${c}</option>`).join('');
-    
-    // Set default teacher name
-    const currentUserName = currentUser ? currentUser.fullName || currentUser.username : "Guest Teacher";
-    document.getElementById('teacher').value = currentUserName;
-    document.getElementById('date').value = new Date().toISOString().split('T')[0];
-    
-    document.getElementById('lessonForm').onsubmit = handleLessonPlanSubmit;
-}
-
-function handleLessonPlanSubmit(e) {
-    e.preventDefault();
-    
-    const lang = document.getElementById('language').value;
-    const data = {
-        lang: lang,
-        school: document.getElementById('school').value,
-        teacher: document.getElementById('teacher').value,
-        subject: document.getElementById('subject').value,
-        classLevel: document.getElementById('classLevel').value,
-        term: document.getElementById('term').value,
-        date: document.getElementById('date').value,
-        unitNo: document.getElementById('unitNo').value,
-        lessonNo: document.getElementById('lessonNo').value,
-        duration: document.getElementById('duration').value,
-        classSize: document.getElementById('classSize').value,
-        specialNeeds: document.getElementById('specialNeeds').value,
-        unitTitle: document.getElementById('unitTitle').value,
-        keyCompetence: document.getElementById('keyCompetence').value,
-        lessonTitle: document.getElementById('lessonTitle').value,
-        instructionalObjective: document.getElementById('instructionalObjective').value,
-        location: document.getElementById('location').value,
-        materials: document.getElementById('materials').value,
-        references: document.getElementById('references').value,
-        aiActivities: document.getElementById('aiActivities').checked
-    };
-    
-    document.getElementById('outputTitle').textContent = getLangString('TITLE', lang);
-    document.getElementById('lessonPlanContent').innerHTML = generateEditableContent(data);
-    document.getElementById('output').style.display = 'block';
-}
-
-function generateEditableContent(data) {
-    const { lang, duration, unitTitle, lessonTitle, aiActivities } = data;
-    const T = (key) => getLangString(key, lang);
-    const timePerStage = Math.floor(parseInt(duration) / 3);
-    const timeIntroduction = Math.max(5, timePerStage);
-    const timeDevelopment = Math.max(timePerStage * 2, parseInt(duration) - 10);
-    const timeConclusion = Math.max(5, parseInt(duration) - timeIntroduction - timeDevelopment);
-
-    let html = `
-        <table class="lesson-table" style="width:100%; table-layout: fixed; margin-bottom: 20px;">
-            <tr><th colspan="2" style="text-align:center; background-color: #dbe4f0;">${T('TITLE')} - ${lessonTitle.toUpperCase()}</th></tr>
-            <tr><th>${T('TEACHER')}</th><td>${data.teacher}</td></tr>
-            <tr><th>${T('SUBJECT')}</th><td>${data.subject}</td></tr>
-            <tr><th>${T('CLASS')}</th><td>${data.classLevel}</td></tr>
-            <tr><th>${T('UNIT')} (${data.unitNo})</th><td>${unitTitle}</td></tr>
-            <tr><th>${T('OBJECTIVE')}</th><td>${data.instructionalObjective}</td></tr>
-            <tr><th>${T('DURATION')}</th><td>${duration} minutes</td></tr>
-            <tr><th>${T('MATERIALS')}</th><td>${data.materials}</td></tr>
-            <tr><th>${T('REFERENCES')}</th><td>${data.references}</td></tr>
-        </table>
-
-        <h3 style="color:#4a90e2; margin-top:20px;">${T('SECTION_TITLE')}</h3>
-        <table class="lesson-table" style="width:100%; table-layout: fixed;">
-            <thead>
-                <tr>
-                    <th style="width:15%;">${T('STAGE')}</th>
-                    <th style="width:10%;">${T('TIME')} (min)</th>
-                    <th style="width:35%;">${T('TEACHER_ACTIVITY')}</th>
-                    <th style="width:35%;">${T('LEARNER_ACTIVITY')}</th>
-                </tr>
-            </thead>
-            <tbody>
-    `;
-
-    // 1. Introduction (Review/Prior knowledge)
-    html += `
-        <tr>
-            <td contenteditable="true">**Introduction**</td>
-            <td contenteditable="true">${timeIntroduction}</td>
-            <td contenteditable="true">${aiActivities ? generateAISection('Introduction', data.subject, lessonTitle, timeIntroduction, lang) : ''}</td>
-            <td contenteditable="true">Learners share what they recall.</td>
-        </tr>
-    `;
-
-    // 2. Development (Presentation and Practice)
-    html += `
-        <tr>
-            <td contenteditable="true">**Development**</td>
-            <td contenteditable="true">${timeDevelopment}</td>
-            <td contenteditable="true">${aiActivities ? generateAISection('Development', data.subject, lessonTitle, timeDevelopment, lang) : ''}</td>
-            <td contenteditable="true">Learners participate in group work and practice new concepts.</td>
-        </tr>
-    `;
-
-    // 3. Conclusion (Consolidation and Assessment)
-    html += `
-        <tr>
-            <td contenteditable="true">**Conclusion**</td>
-            <td contenteditable="true">${timeConclusion}</td>
-            <td contenteditable="true">${aiActivities ? generateAISection('Conclusion', data.subject, lessonTitle, timeConclusion, lang) : ''}</td>
-            <td contenteditable="true">Learners present their findings and answer questions.</td>
-        </tr>
-    `;
-    
-    html += '</tbody></table>';
-
-    // Assessment/Evaluation Section
-    html += `
-        <table class="lesson-table" style="width:100%; margin-top:20px;">
-            <tr><th style="width:20%;">${T('ASSESSMENT')}</th><td contenteditable="true">${aiActivities ? generateAISection('Assessment', data.subject, lessonTitle, duration, lang) : 'Written test on key concepts.'}</td></tr>
-            <tr><th>${T('FOLLOWUP')}</th><td contenteditable="true">${aiActivities ? generateAISection('Followup', data.subject, lessonTitle, duration, lang) : 'Complete exercise 3 from the textbook.'}</td></tr>
-        </table>
-    `;
-
-    return html;
-}
-
-// Simple AI/ML simulation functions for Lesson Plan content generation
-function generateAISection(section, subject, title, time, lang) {
-    const T = (key) => getLangString(key, lang);
-    const verbMap = {
-        Introduction: "Review / Vérifier / Gusuzuma / Kurejea",
-        Development: "Explain / Expliquer / Gusobanura / Kufafanua",
-        Conclusion: "Summarize / Récapituler / Gukora inshamake / Kufupisha",
-        Assessment: "Evaluate / Évaluer / Gusuzuma / Kutathmini",
-        Followup: "Assign / Attribuer / Guha / Kupeana"
-    };
-
-    const filler = {
-        Introduction: `${verbMap.Introduction} prior knowledge related to '${title}'. Introduce the objective in ${lang}.`,
-        Development: `${verbMap.Development} the core concepts of ${subject}. Lead a group activity for ${time} minutes.`,
-        Conclusion: `${verbMap.Conclusion} the main points. Ask learners to perform a final activity.`,
-        Assessment: `${verbMap.Assessment}: Ask 5 short-answer questions based on the lesson on ${title}.`,
-        Followup: `${verbMap.Followup} homework to reinforce learning on ${subject}.`
-    };
-    
-    return filler[section] || 'AI content placeholder.';
-}
-
-// ** 12. EXPORT/IMPORT FUNCTIONS **
-function downloadPDF() {
-    const outputDiv = document.getElementById('lessonPlanContent');
-    if (!outputDiv.innerHTML) {
-        alert("Generate a lesson plan first.");
+function renderLearners() {
+    const search = document.getElementById('learnerSearch').value.toLowerCase();
+    const classFilter = document.getElementById('classFilter').value;
+    const tbody = document.getElementById('learnerList');
+    tbody.innerHTML = '';
+    let filtered = learners.filter(l =>
+        (l.regNo.toLowerCase().includes(search) || l.name.toLowerCase().includes(search)) &&
+        (!classFilter || l.class === classFilter)
+    );
+    filtered.sort((a, b) => a.regNo.localeCompare(b.regNo));
+    if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="12" style="text-align:center;padding:60px;color:#999;">No learners found</td></tr>';
         return;
     }
-
-    const { jsPDF } = window.jspdf;
-    
-    // Create a temporary clone for rendering without the buttons/notes
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = outputDiv.innerHTML;
-    tempDiv.querySelector('.edit-note')?.remove(); 
-    
-    const doc = new jsPDF('p', 'pt', 'a4');
-    const margins = { top: 40, bottom: 40, left: 30, right: 30 };
-    
-    // Use html2canvas to render the HTML content to the PDF
-    html2canvas(tempDiv, { scale: 2 }).then(canvas => {
-        const imgData = canvas.toDataURL('image/png');
-        const imgWidth = doc.internal.pageSize.getWidth() - margins.left - margins.right;
-        const imgHeight = canvas.height * imgWidth / canvas.width;
-        let position = margins.top;
-
-        // Check if the image fits on the first page, otherwise split or add new pages
-        if (imgHeight > doc.internal.pageSize.getHeight() - margins.top - margins.bottom) {
-            // Complex content needs advanced page splitting, simplified here as a single large image
-            doc.addImage(imgData, 'PNG', margins.left, position, imgWidth, imgHeight);
-        } else {
-            doc.addImage(imgData, 'PNG', margins.left, position, imgWidth, imgHeight);
-        }
-        
-        doc.save(`${document.getElementById('lessonTitle').value || 'LessonPlan'}.pdf`);
+    filtered.forEach(l => {
+        const due = getFeesDue(l.class);
+        const paid = getLearnerPayments(l.regNo).reduce((s, p) => s + p.amount, 0);
+        const balance = due - paid;
+        const status = paid >= due ? 'PAID' : paid > 0 ? 'PARTIAL' : 'PENDING';
+        const statusClass = `status-${status.toLowerCase()}`;
+        const count = getLearnerPayments(l.regNo).length;
+        tbody.innerHTML += `
+            <tr>
+                <td><strong>${l.regNo}</strong></td>
+                <td>${l.name}</td>
+                <td>${l.fatherName || '—'}</td>
+                <td>${l.motherName || '—'}</td>
+                <td>${l.class || '—'}</td>
+                <td>${l.gender === 'M' ? 'Male' : 'Female'}</td>
+                <td>RWF ${due.toLocaleString()}</td>
+                <td>RWF ${paid.toLocaleString()}</td>
+                <td>RWF ${balance.toLocaleString()}</td>
+                <td><span class="status-badge ${statusClass}">${status}</span></td>
+                <td><span class="payment-details" onclick="showPaymentHistory('${l.regNo}', '${l.name.replace(/'/g, "\\'")}')">View (${count})</span></td>
+                <td style="white-space:nowrap;">
+                    <button class="btn-sm btn-primary" onclick="editLearner('${l.regNo}')">Edit</button>
+                    <button class="btn-sm btn-pay" onclick="recordPayment('${l.regNo}', '${l.name.replace(/'/g, "\\'")}')">Pay</button>
+                    <button class="btn-sm btn-danger" onclick="deleteLearner('${l.regNo}')">Delete</button>
+                </td>
+            </tr>`;
     });
 }
-
-function downloadDOCX() {
-    alert("DOCX Export: (In a real system, this would use a library like 'docxtemplater' to create an editable Word document.)");
+function renderStaff() {
+    const tbody = document.getElementById('staffList');
+    tbody.innerHTML = staff.length === 0 ? '<tr><td colspan="5" style="text-align:center;padding:60px;color:#999;">No staff registered</td></tr>' : '';
+    staff.forEach((s, i) => {
+        tbody.innerHTML += `<tr>
+            <td>${s.regNo}</td>
+            <td>${s.name}</td>
+            <td>${s.gender === 'M' ? 'Male' : 'Female'}</td>
+            <td>${s.role}</td>
+            <td>
+                <button class="btn-sm btn-primary" onclick="editStaff(${i})">Edit</button>
+                <button class="btn-sm btn-danger" onclick="deleteStaff(${i})">Delete</button>
+            </td>
+        </tr>`;
+    });
 }
-
-function downloadImportTemplate(type) {
-    let data = [];
-    let filename = '';
-    
-    if (type === 'learners') {
-        data = [
-            ['id', 'name', 'class', 'feeStatus'],
-            ['S005', 'New Student Name', 'P3', 'Unpaid'],
-        ];
-        filename = 'Learners_Import_Template.xlsx';
-    } else if (type === 'staff') {
-        data = [
-            ['username', 'password', 'role', 'sdmsCode', 'idNumber', 'fullName', 'email', 'gender', 'telephone'],
-            ['newstaff@school.rw', '1234', 'teacher', 'TCH002-2025', '1199080xxxxxxxxx', 'New Staff Name', 'newstaff@school.rw', 'Male', '+25078xxxxxxx'],
-        ];
-        filename = 'Staff_Import_Template.xlsx';
+function renderClasses() {
+    const tbody = document.getElementById('classList');
+    tbody.innerHTML = '';
+    if (classes.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:80px;color:#999;font-size:18px;">No classes created yet.<br><br>Click "Add New Class" to begin.</td></tr>';
+        document.getElementById('totalClassesCount').textContent = '0';
+        return;
+    }
+    classes.sort().forEach(c => {
+        const count = learners.filter(l => l.class === c).length;
+        const plural = count !== 1 ? 's' : '';
+        tbody.innerHTML += `
+            <tr>
+                <td style="font-size:20px;font-weight:600;color:var(--primary);">${c}</td>
+                <td style="text-align:center;font-size:28px;font-weight:bold;color:${count > 0 ? 'var(--success)' : '#999'};">
+                    ${count}
+                    <div style="font-size:14px;color:#666;margin-top:5px;">learner${plural}</div>
+                </td>
+                <td class="class-actions">
+                    <button class="btn-sm btn-success" onclick="showLearnersListModal('all', '${c}')"><i class="fas fa-users"></i> All</button>
+                    <button class="btn-sm btn-success" onclick="showLearnersListModal('paid', '${c}')"><i class="fas fa-check"></i> Paid</button>
+                    <button class="btn-sm btn-warning" onclick="showLearnersListModal('partial', '${c}')"><i class="fas fa-exclamation"></i> Partial</button>
+                    <button class="btn-sm btn-danger" onclick="showLearnersListModal('pending', '${c}')"><i class="fas fa-times"></i> Pending</button>
+                    <button class="btn-sm btn-primary" onclick="editClassName('${c}')"><i class="fas fa-edit"></i> Rename</button>
+                    <button class="btn-sm btn-danger" onclick="deleteClass('${c}')"><i class="fas fa-trash"></i> Delete</button>
+                </td>
+            </tr>`;
+    });
+    document.getElementById('totalClassesCount').textContent = classes.length;
+}
+function populateClassFilter() {
+    const select = document.getElementById('classFilter');
+    select.innerHTML = '<option value="">All Classes</option>';
+    classes.sort().forEach(c => {
+        select.innerHTML += `<option value="${c}">${c}</option>`;
+    });
+}
+function populateClassDropdown() {
+    const select = document.getElementById('learnerClass');
+    select.innerHTML = '<option value="">Select Class</option>';
+    classes.sort().forEach(c => {
+        select.innerHTML += `<option value="${c}">${c}</option>`;
+    });
+}
+function showPaymentHistory(regNo, name) {
+    document.getElementById('phName').textContent = name;
+    document.getElementById('phRegNo').textContent = regNo;
+    const tbody = document.getElementById('paymentHistoryTable');
+    tbody.innerHTML = '';
+    const pays = getLearnerPayments(regNo);
+    if (pays.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">No payments recorded</td></tr>';
     } else {
-        return;
+        pays.forEach(p => {
+            tbody.innerHTML += `<tr><td>${p.date}</td><td>RWF ${p.amount.toLocaleString()}</td><td>${p.reason}</td></tr>`;
+        });
     }
-
-    const ws = XLSX.utils.aoa_to_sheet(data);
+    document.getElementById('paymentHistoryModal').classList.remove('hidden');
+}
+function showLearnersListModal(filter = 'all', specificClass = '') {
+    currentListFilter = filter;
+    currentListClass = specificClass;
+    const school = getCurrentSchool();
+    let title = filter.charAt(0).toUpperCase() + filter.slice(1) + ' Learners';
+    if (specificClass) title += ` in ${specificClass}`;
+    if (filter === 'all' && specificClass) title = `Learners in ${specificClass}`;
+    document.getElementById('learnersListTitle').textContent = `${title} - Term ${currentTerm}`;
+    document.getElementById('learnersListSchool').textContent = school ? school.name : '';
+    const tbody = document.getElementById('learnersListTable');
+    tbody.innerHTML = '';
+    let list = learners;
+    if (specificClass) {
+        list = learners.filter(l => l.class === specificClass);
+    }
+    if (filter !== 'all') {
+        list = list.filter(l => {
+            const due = getFeesDue(l.class);
+            const paid = getLearnerPayments(l.regNo).reduce((s, p) => s + p.amount, 0);
+            if (filter === 'paid') return paid >= due;
+            if (filter === 'partial') return paid > 0 && paid < due;
+            if (filter === 'pending') return paid === 0;
+            return true;
+        });
+    }
+    let totalDue = 0, totalPaid = 0, totalBalance = 0;
+    list.forEach((l, i) => {
+        const due = getFeesDue(l.class);
+        const paid = getLearnerPayments(l.regNo).reduce((s, p) => s + p.amount, 0);
+        const balance = due - paid;
+        const status = paid >= due ? 'PAID' : paid > 0 ? 'PARTIAL' : 'PENDING';
+        totalDue += due;
+        totalPaid += paid;
+        totalBalance += balance;
+        tbody.innerHTML += `<tr>
+            <td>${i + 1}</td>
+            <td>${l.regNo}</td>
+            <td>${l.name}</td>
+            <td>${l.fatherName || '—'}</td>
+            <td>${l.motherName || '—'}</td>
+            <td>${l.class}</td>
+            <td>${l.gender === 'M' ? 'Male' : 'Female'}</td>
+            <td>RWF ${due.toLocaleString()}</td>
+            <td>RWF ${paid.toLocaleString()}</td>
+            <td>RWF ${balance.toLocaleString()}</td>
+            <td>${status}</td>
+        </tr>`;
+    });
+    tbody.innerHTML += `<tr style="font-weight:bold;"><td colspan="7">Totals</td><td>RWF ${totalDue.toLocaleString()}</td><td>RWF ${totalPaid.toLocaleString()}</td><td>RWF ${totalBalance.toLocaleString()}</td><td></td></tr>`;
+    document.getElementById('totalLearnersCount').textContent = list.length;
+    document.getElementById('learnersListModal').classList.remove('hidden');
+}
+function renderAll() {
+    renderDashboard();
+    renderLearners();
+    renderStaff();
+    renderClasses();
+    renderFeesSummary();
+    populateClassFilter();
+    populateClassDropdown();
+    if (document.getElementById('financeTab').classList.contains('active')) renderFinanceChart();
+}
+function showAddLearnerModal() {
+    document.getElementById('learnerModalTitle').textContent = 'Add Learner';
+    document.getElementById('addLearnerForm').reset();
+    delete document.getElementById('addLearnerForm').dataset.editIndex;
+    populateClassDropdown();
+    document.getElementById('addLearnerModal').classList.remove('hidden');
+}
+function editLearner(regNo) {
+    const l = learners.find(l => l.regNo === regNo);
+    if (!l) return;
+    document.getElementById('learnerRegNo').value = l.regNo;
+    document.getElementById('learnerName').value = l.name;
+    document.getElementById('learnerFatherName').value = l.fatherName || '';
+    document.getElementById('learnerMotherName').value = l.motherName || '';
+    document.getElementById('learnerGender').value = l.gender;
+    document.getElementById('learnerClass').value = l.class;
+    document.getElementById('addLearnerForm').dataset.editIndex = learners.indexOf(l);
+    document.getElementById('learnerModalTitle').textContent = 'Edit Learner';
+    populateClassDropdown();
+    document.getElementById('addLearnerModal').classList.remove('hidden');
+}
+function deleteLearner(regNo) {
+    if (confirm('Delete this learner and all their payments?')) {
+        learners = learners.filter(l => l.regNo !== regNo);
+        payments = payments.filter(p => p.regNo !== regNo);
+        saveSchoolData();
+        renderAll();
+    }
+}
+document.getElementById('addLearnerForm').onsubmit = function(e) {
+    e.preventDefault();
+    const regNo = document.getElementById('learnerRegNo').value.trim().toUpperCase();
+    const name = document.getElementById('learnerName').value.trim();
+    const fatherName = document.getElementById('learnerFatherName').value.trim();
+    const motherName = document.getElementById('learnerMotherName').value.trim();
+    const gender = document.getElementById('learnerGender').value;
+    const cls = document.getElementById('learnerClass').value;
+    if (!regNo || !name || !gender || !cls) return alert('Required fields: SDMS Code, Name, Gender, Class');
+    const editIndex = this.dataset.editIndex;
+    if (editIndex !== undefined) {
+        learners[parseInt(editIndex)] = {regNo, name, fatherName, motherName, gender, class: cls};
+    } else {
+        if (learners.some(l => l.regNo === regNo)) return alert('SDMS Code already exists');
+        learners.push({regNo, name, fatherName, motherName, gender, class: cls});
+    }
+    saveSchoolData();
+    closeModal('addLearnerModal');
+    renderAll();
+};
+function showAddStaffModal() {
+    document.getElementById('addStaffForm').reset();
+    delete document.getElementById('addStaffForm').dataset.index;
+    document.getElementById('addStaffModal').classList.remove('hidden');
+}
+function editStaff(i) {
+    const s = staff[i];
+    document.getElementById('staffRegNo').value = s.regNo;
+    document.getElementById('staffName').value = s.name;
+    document.getElementById('staffGender').value = s.gender;
+    document.getElementById('staffRole').value = s.role;
+    document.getElementById('addStaffForm').dataset.index = i;
+    document.getElementById('addStaffModal').classList.remove('hidden');
+}
+function deleteStaff(i) {
+    if (confirm('Delete this staff member?')) {
+        staff.splice(i, 1);
+        saveSchoolData();
+        renderStaff();
+    }
+}
+document.getElementById('addStaffForm').onsubmit = function(e) {
+    e.preventDefault();
+    const regNo = document.getElementById('staffRegNo').value.trim().toUpperCase();
+    const name = document.getElementById('staffName').value.trim();
+    const gender = document.getElementById('staffGender').value;
+    const role = document.getElementById('staffRole').value.trim();
+    if (!regNo || !name || !gender || !role) return alert('All fields required');
+    const index = this.dataset.index;
+    if (index !== undefined) {
+        staff[parseInt(index)] = {regNo, name, gender, role};
+    } else {
+        if (staff.some(s => s.regNo === regNo)) return alert('Staff code already exists');
+        staff.push({regNo, name, gender, role});
+    }
+    saveSchoolData();
+    closeModal('addStaffModal');
+    renderAll();
+};
+function addClass() {
+    const name = prompt('Enter new class name (e.g. P1, S4, Nursery):').trim().toUpperCase();
+    if (!name) return;
+    if (classes.includes(name)) return alert('Class already exists');
+    classes.push(name);
+    saveSchoolData();
+    renderClasses();
+    populateClassFilter();
+    populateClassDropdown();
+}
+function editClassName(oldName) {
+    const newName = prompt('New class name:', oldName).trim().toUpperCase();
+    if (!newName || newName === oldName) return;
+    if (classes.includes(newName)) return alert('Class name already exists');
+    const index = classes.indexOf(oldName);
+    classes[index] = newName;
+    learners = learners.map(l => l.class === oldName ? {...l, class: newName} : l);
+    saveSchoolData();
+    renderAll();
+}
+function deleteClass(c) {
+    if (confirm(`Delete class ${c}? All learners will be unassigned from this class.`)) {
+        classes = classes.filter(x => x !== c);
+        learners = learners.map(l => l.class === c ? {...l, class: ''} : l);
+        saveSchoolData();
+        renderAll();
+    }
+}
+function showFeesModal() {
+    const f = feesStructure[currentTerm];
+    document.getElementById('nursery_school').value = f.nursery.school || 35000;
+    document.getElementById('lower_school').value = f.lower.school || 45000;
+    document.getElementById('upper_school').value = f.upper.school || 55000;
+    document.getElementById('ordinary_school').value = f.ordinary.school || 80000;
+    document.getElementById('advanced_school').value = f.advanced.school || 100000;
+    document.getElementById('feesModal').classList.remove('hidden');
+}
+function saveFeesStructure() {
+    feesStructure[currentTerm] = {
+        nursery: {school: parseInt(document.getElementById('nursery_school').value) || 35000},
+        lower: {school: parseInt(document.getElementById('lower_school').value) || 45000},
+        upper: {school: parseInt(document.getElementById('upper_school').value) || 55000},
+        ordinary: {school: parseInt(document.getElementById('ordinary_school').value) || 80000},
+        advanced: {school: parseInt(document.getElementById('advanced_school').value) || 100000}
+    };
+    saveSchoolData();
+    closeModal('feesModal');
+    renderFeesSummary();
+    renderAll();
+}
+function exportLearners() {
+    let csv = 'SDMS Code,Name,Father Name,Mother Name,Class,Gender,Due,Paid,Balance,Status\n';
+    learners.forEach(l => {
+        const due = getFeesDue(l.class);
+        const paid = getLearnerPayments(l.regNo).reduce((s, p) => s + p.amount, 0);
+        const balance = due - paid;
+        const status = paid >= due ? 'PAID' : paid > 0 ? 'PARTIAL' : 'PENDING';
+        csv += `${l.regNo},${l.name},${l.fatherName || ''},${l.motherName || ''},${l.class},${l.gender === 'M' ? 'Male' : 'Female'},${due},${paid},${balance},${status}\n`;
+    });
+    const blob = new Blob([csv], {type: 'text/csv'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'learners_export.csv';
+    a.click();
+}
+function exportCurrentList() {
+    let list = learners;
+    if (currentListClass) {
+        list = list.filter(l => l.class === currentListClass);
+    }
+    if (currentListFilter !== 'all') {
+        list = list.filter(l => {
+            const due = getFeesDue(l.class);
+            const paid = getLearnerPayments(l.regNo).reduce((s, p) => s + p.amount, 0);
+            if (currentListFilter === 'paid') return paid >= due;
+            if (currentListFilter === 'partial') return paid > 0 && paid < due;
+            if (currentListFilter === 'pending') return paid === 0;
+            return true;
+        });
+    }
+    let csv = 'No,SDMS Code,Name,Father Name,Mother Name,Class,Gender,Due,Paid,Balance,Status\n';
+    let totalDue = 0, totalPaid = 0, totalBalance = 0;
+    list.forEach((l, i) => {
+        const due = getFeesDue(l.class);
+        const paid = getLearnerPayments(l.regNo).reduce((s, p) => s + p.amount, 0);
+        const balance = due - paid;
+        const status = paid >= due ? 'PAID' : paid > 0 ? 'PARTIAL' : 'PENDING';
+        totalDue += due;
+        totalPaid += paid;
+        totalBalance += balance;
+        csv += `${i+1},${l.regNo},${l.name},${l.fatherName || ''},${l.motherName || ''},${l.class},${l.gender === 'M' ? 'Male' : 'Female'},${due},${paid},${balance},${status}\n`;
+    });
+    csv += `,,,,,,Totals,${totalDue},${totalPaid},${totalBalance},\n`;
+    const blob = new Blob([csv], {type: 'text/csv'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    let filename = `${currentListFilter}_learners`;
+    if (currentListClass) filename += `_${currentListClass.replace(/\s+/g, '_')}`;
+    filename += '.csv';
+    a.download = filename;
+    a.click();
+}
+function exportToPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const school = getCurrentSchool();
+    const title = document.getElementById('learnersListTitle').textContent;
+    doc.text(`${school.name} - ${title}`, 14, 20);
+    const table = document.getElementById('learnersListTable');
+    const rows = [];
+    const headers = Array.from(table.querySelectorAll('thead th')).map(th => th.textContent);
+    rows.push(headers);
+    table.querySelectorAll('tbody tr').forEach(tr => {
+        const row = Array.from(tr.querySelectorAll('td')).map(td => td.textContent);
+        rows.push(row);
+    });
+    doc.autoTable({
+        head: [rows[0]],
+        body: rows.slice(1),
+        startY: 30
+    });
+    let filename = `financial_report_${currentListFilter}`;
+    if (currentListClass) filename += `_${currentListClass.replace(/\s+/g, '_')}`;
+    filename += '.pdf';
+    doc.save(filename);
+}
+function exportToExcel() {
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Data");
+    const ws_data = [];
+    const school = getCurrentSchool();
+    const title = document.getElementById('learnersListTitle').textContent;
+    ws_data.push([`${school.name} - ${title}`]);
+    ws_data.push([]);
+    const table = document.getElementById('learnersListTable');
+    table.querySelectorAll('tr').forEach(tr => {
+        const row = Array.from(tr.querySelectorAll('th, td')).map(cell => cell.textContent);
+        ws_data.push(row);
+    });
+    const ws = XLSX.utils.aoa_to_sheet(ws_data);
+    XLSX.utils.book_append_sheet(wb, ws, "Report");
+    let filename = `financial_report_${currentListFilter}`;
+    if (currentListClass) filename += `_${currentListClass.replace(/\s+/g, '_')}`;
+    filename += '.xlsx';
     XLSX.writeFile(wb, filename);
 }
-
-function importList(type) {
-    if (type === 'staff') {
-        document.getElementById('staffImportFile').click(); // Trigger the hidden file input
-    } else {
-        alert(`Importing ${type} list: File selection dialog would open here. (Using XLSX library to parse the selected file).`);
-    }
+function downloadLearnerTemplate() {
+    const csv = 'SDMS Code,Name,Father Name,Mother Name,Gender,Class\nRW001,Example Name,Father Name,Mother Name,M,P1\n';
+    const blob = new Blob([csv], {type: 'text/csv'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'learners_template.csv';
+    a.click();
 }
-
-function processStaffImport(event) {
+function importLearners(event) {
     const file = event.target.files[0];
     if (!file) return;
-
     const reader = new FileReader();
     reader.onload = function(e) {
-        try {
-            const data = new Uint8Array(e.target.result);
-            const workbook = XLSX.read(data, { type: 'array' });
-            const sheetName = workbook.SheetNames[0];
-            const worksheet = workbook.Sheets[sheetName];
-            
-            // Convert sheet to JSON array (with header)
-            const jsonSheet = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-            
-            if (jsonSheet.length <= 1) {
-                alert("Error: The file is empty or contains only headers.");
-                return;
+        const lines = e.target.result.split('\n');
+        let added = 0;
+        for (let i = 1; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (!line) continue;
+            const parts = line.split(',');
+            if (parts.length < 6) continue;
+            const regNo = parts[0].trim().toUpperCase();
+            const name = parts[1].trim();
+            const fatherName = parts[2].trim();
+            const motherName = parts[3].trim();
+            const gender = parts[4].trim().toUpperCase();
+            const cls = parts[5].trim().toUpperCase();
+            if (regNo && name && ['M','F'].includes(gender) && cls && !learners.some(l => l.regNo === regNo)) {
+                learners.push({regNo, name, fatherName, motherName, gender, class: cls});
+                added++;
             }
-
-            const header = jsonSheet[0].map(h => h.trim());
-            const requiredHeaders = ['username', 'password', 'role', 'sdmsCode', 'idNumber'];
-            
-            if (!requiredHeaders.every(rh => header.includes(rh))) {
-                alert(`Error: Missing required columns in the header. Must include: ${requiredHeaders.join(', ')}`);
-                return;
-            }
-
-            const newUsers = [];
-            let nextId = USERS.length > 0 ? Math.max(...USERS.map(u => u.id || 0)) + 1 : 1;
-            let successCount = 0;
-            let failureCount = 0;
-            const validRoles = ['teacher', 'admin', 'finance', 'bursal', 'headteacher', 'dos'];
-            const existingUsernames = new Set(USERS.map(u => u.username));
-
-            // Process data rows starting from index 1
-            for (let i = 1; i < jsonSheet.length; i++) {
-                const row = jsonSheet[i];
-                const userData = {};
-                let isValid = true;
-                
-                // Map row data to key-value pairs based on header
-                header.forEach((key, index) => {
-                    userData[key] = row[index] ? String(row[index]).trim() : '';
-                });
-
-                // Validation checks
-                if (!userData.username || !userData.password || !userData.role || !userData.sdmsCode || !userData.idNumber) {
-                    isValid = false;
-                    console.error(`Row ${i + 1} failed: Missing required fields.`);
-                }
-                if (existingUsernames.has(userData.username)) {
-                    isValid = false;
-                    console.error(`Row ${i + 1} failed: Duplicate username ${userData.username}.`);
-                }
-                if (!validRoles.includes(userData.role.toLowerCase())) {
-                    isValid = false;
-                    console.error(`Row ${i + 1} failed: Invalid role ${userData.role}.`);
-                }
-                
-                if (isValid) {
-                    newUsers.push({
-                        id: nextId++,
-                        username: userData.username,
-                        password: userData.password,
-                        role: userData.role.toLowerCase(),
-                        sdmsCode: userData.sdmsCode,
-                        idNumber: userData.idNumber,
-                        fullName: userData.fullName || userData.username, // Use username if full name missing
-                        email: userData.email || '',
-                        gender: userData.gender || 'Other',
-                        telephone: userData.telephone || ''
-                    });
-                    existingUsernames.add(userData.username); // Add to set for subsequent checks
-                    successCount++;
-                } else {
-                    failureCount++;
-                }
-            }
-            
-            if (newUsers.length > 0) {
-                USERS.push(...newUsers);
-                saveData();
-                displayUsers();
-                alert(`Import complete! ${successCount} new staff users added. ${failureCount} rows skipped due to errors or duplicates.`);
-            } else {
-                alert(`Import failed. No valid new users found. ${failureCount} rows had errors/duplicates.`);
-            }
-
-        } catch (error) {
-            console.error("Error processing staff import file:", error);
-            alert("An error occurred while processing the file. Please ensure it is a valid Excel/CSV file matching the template format.");
-        } finally {
-             // Reset the input so the same file can be selected again if needed
-            document.getElementById('staffImportFile').value = ''; 
         }
+        saveSchoolData();
+        alert(`Successfully imported ${added} learners`);
+        renderAll();
     };
-    reader.readAsArrayBuffer(file);
+    reader.readAsText(file);
 }
-
-function exportList(type) {
-    let data = [];
-    let filename = '';
-
-    if (type === 'learners') {
-        data = learners.map(l => [l.id, l.name, l.class, l.feeStatus]);
-        data.unshift(['ID', 'Name', 'Class', 'Fee Status']);
-        filename = 'Learners_Export.xlsx';
-    } else if (type === 'staff') {
-        data = USERS.map(u => [u.id, u.username, u.role, u.fullName, u.email, u.telephone]);
-        data.unshift(['ID', 'Username', 'Role', 'Full Name', 'Email', 'Telephone']);
-        filename = 'Staff_Export.xlsx';
-    } else {
-        return;
-    }
-    
-    const ws = XLSX.utils.aoa_to_sheet(data);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Exported Data");
-    XLSX.writeFile(wb, filename);
+function exportStaff() {
+    let csv = 'Code,Name,Gender,Role\n';
+    staff.forEach(s => {
+        csv += `${s.regNo},${s.name},${s.gender === 'M' ? 'Male' : 'Female'},${s.role}\n`;
+    });
+    const blob = new Blob([csv], {type: 'text/csv'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'staff_export.csv';
+    a.click();
 }
-
-
-// Expose functions globally for HTML events
-window.login = login;
-window.logout = logout;
-window.openTab = openTab;
-
-// Class/Subject/Learner Management
-window.addClass = addClass;
-window.deleteClass = deleteClass;
-window.addLearner = addLearner;
-window.deleteLearner = deleteLearner;
-window.addSubject = addSubject;
-window.bulkAddSubjects = bulkAddSubjects;
-window.deleteSubject = deleteSubject;
-
-// Assignments
-window.assignTeacherToClass = assignTeacherToClass;
-window.unassignClass = unassignClass;
-
-// Timetable
-window.addPeriod = addPeriod;
-window.deletePeriod = deletePeriod;
-window.addSubjectRule = addSubjectRule;
-window.deleteSubjectRule = deleteSubjectRule;
-window.generateTimetableAuto = generateTimetableAuto;
-window.clearAllTimetableSlots = clearAllTimetableSlots;
-
-// Attendance
-window.handleAttendanceSubmit = handleAttendanceSubmit;
-
-// Marks
-window.addMark = showMarksTab; // Mapped to showMarksTab as intended
-window.renderMarkForm = renderMarkForm;
-window.saveMarks = saveMarks;
-
-// Finance
-window.deleteTransaction = deleteTransaction;
-window.loadFinanceData = loadFinanceData;
-window.deleteBudget = deleteBudget;
-window.handleTransactionSubmit = handleTransactionSubmit;
-window.handleFeePaymentSubmit = handleFeePaymentSubmit;
-window.handleSDMSPayment = handleSDMSPayment;
-window.generateReport = generateReport;
-
-// Lesson Plan
-window.downloadPDF = downloadPDF;
-window.downloadDOCX = downloadDOCX;
-
-// User Management
-window.showUserForm = showUserForm;
-window.closeUserForm = closeUserForm;
-window.handleUserSubmit = handleUserSubmit;
-window.deleteUser = deleteUser;
-
-// Imports/Exports
-window.downloadImportTemplate = downloadImportTemplate;
-window.importList = importList;
-window.exportList = exportList;
-window.processStaffImport = processStaffImport; // Expose the new function
-
-// --- Initialization ---
-function init(){
-  // Ensure all existing users have an 'id' for stability 
-  USERS = USERS.map((u, index) => ({ id: u.id || index + 1, ...u }));
-  const maxId = USERS.length > 0 ? Math.max(...USERS.map(u => u.id || 0)) : 0;
-  USERS = USERS.map((u, index) => ({ ...u, id: u.id || (maxId + index + 1) }));
-  
-  saveData(); // Save initial data to localStorage
-  
-  // Set default login for Teacher (as requested)
-  document.getElementById('username').value = 'teacher1@school.rw'; 
-  document.getElementById('password').value = '1234';
-  document.getElementById('role').value = 'teacher';
+function downloadStaffTemplate() {
+    const csv = 'Code,Name,Gender,Role\nST001,Example Staff,M,Teacher\n';
+    const blob = new Blob([csv], {type: 'text/csv'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'staff_template.csv';
+    a.click();
 }
-
-document.addEventListener('DOMContentLoaded', init);
+function importStaff(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const lines = e.target.result.split('\n');
+        let added = 0;
+        for (let i = 1; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (!line) continue;
+            const parts = line.split(',');
+            if (parts.length < 4) continue;
+            const regNo = parts[0].trim().toUpperCase();
+            const name = parts[1].trim();
+            const gender = parts[2].trim().toUpperCase();
+            const role = parts[3].trim();
+            if (regNo && name && ['M','F'].includes(gender) && role && !staff.some(s => s.regNo === regNo)) {
+                staff.push({regNo, name, gender, role});
+                added++;
+            }
+        }
+        saveSchoolData();
+        alert(`Successfully imported ${added} staff members`);
+        renderAll();
+    };
+    reader.readAsText(file);
+}
+document.addEventListener('DOMContentLoaded', () => {
+    populateSchoolSelector();
+    setTimeout(() => document.getElementById('loadingScreen').classList.add('hidden'), 1000);
+});
 </script>
 </body>
 </html>
-
